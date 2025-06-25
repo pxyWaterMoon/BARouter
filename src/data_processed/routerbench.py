@@ -88,9 +88,9 @@ if not os.path.exists(save_path):
     os.makedirs(save_path)
 
 train_df = pd.DataFrame(train_dataset)
-train_df.to_parquet(os.path.join(save_path, "train.parquet"), engine='pyarrow', index=False)
+train_df.to_parquet(os.path.join(save_path, "online.parquet"), engine='pyarrow', index=False)
 test_df = pd.DataFrame(test_dataset)
-test_df.to_parquet(os.path.join(save_path, "test.parquet"), engine='pyarrow', index=False)
+test_df.to_parquet(os.path.join(save_path, "offline.parquet"), engine='pyarrow', index=False)
 print(f"Processed data saved to {save_path}")
 
 
