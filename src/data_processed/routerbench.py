@@ -6,8 +6,8 @@ from tqdm import tqdm
 import numpy as np
 import os
 
-data_path = "./datas/rawdata/routerbench/routerbench_0shot.pkl"
-save_path = "./datas/processed/all-mpnet-base-v2/routerbench_0shot/"
+data_path = "./data/rawdata/routerbench/routerbench_0shot.pkl"
+save_path = "./data/processed/all-mpnet-base-v2/routerbench_0shot/"
 model_path = "./models/all-mpnet-base-v2"
 
 # Load raw data
@@ -52,7 +52,7 @@ available_models_description_embeddings = {
 
 # get avialable models and write the model description
 # print(rawdata_gb_sampleid.get_group("arc-challenge.val.136"))
-processed_datas = []
+processed_dataset = []
 for index in tqdm(range(len(rawdata)), desc="Processing data"):
     df = rawdata.iloc[index]
     sample_id = df["sample_id"]
@@ -74,22 +74,22 @@ for index in tqdm(range(len(rawdata)), desc="Processing data"):
         "prompt_embedding": prompts_embeddings[prompts.index(prompt)].numpy(),
         "gt": gt,
     }
-    processed_datas.append(processed_data)
+    processed_dataset.append(processed_data)
 
-# randomly split processed_datas into train, test
+# randomly split processed_data into train, test
 np.random.seed(42)
-np.random.shuffle(processed_datas)
-train_size = int(0.8 * len(processed_datas))
-train_datas = processed_datas[:train_size]
-test_datas = processed_datas[train_size:]
+np.random.shuffle(processed_dataset)
+train_size = int(0.8 * len(processed_dataset))
+train_dataset = processed_dataset[:train_size]
+test_dataset = processed_dataset[train_size:]
 
 # Save processed data as .parquet files
 if not os.path.exists(save_path):
     os.makedirs(save_path)
 
-train_df = pd.DataFrame(train_datas)
+train_df = pd.DataFrame(train_dataset)
 train_df.to_parquet(os.path.join(save_path, "train.parquet"), engine='pyarrow', index=False)
-test_df = pd.DataFrame(test_datas)
+test_df = pd.DataFrame(test_dataset)
 test_df.to_parquet(os.path.join(save_path, "test.parquet"), engine='pyarrow', index=False)
 print(f"Processed data saved to {save_path}")
 

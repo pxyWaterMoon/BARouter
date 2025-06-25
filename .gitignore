@@ -193,8 +193,8 @@ cython_debug/
 .cursorignore
 .cursorindexingignore
 
-# Dataset files
-datas/
+# dataet files
+data/
 
 # Models files
 models/
