@@ -17,9 +17,9 @@ for t, data in enumerate(dataset):
     # print(f"PROMPT: {x}")
     avilable_models = list(data["available_models_description"].keys())
 
-    a = np.random.choice(avilable_models)
+    # a = np.random.choice(avilable_models)
     # print("CHOOSED LM:", a)
-    response, reward, cost = env_model.feedback(x, a)
+    response, reward, cost = env_model.feedback(x, avilable_models[5])
     logger.log_scalar(
         {
             "train/reward": reward,
@@ -27,5 +27,4 @@ for t, data in enumerate(dataset):
         },
         step=t,
     )
-
 
