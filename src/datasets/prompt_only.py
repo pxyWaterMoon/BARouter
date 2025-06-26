@@ -51,3 +51,21 @@ class PromptOnlyDataset(Dataset):
 
     def model_embed(self, embed_path):
         raise NotImplementedError
+
+class PromptOnlyDataLoader:
+    def __init__(self, dataset: PromptOnlyDataset, batch_size: int = 1, shuffle: bool = True):
+        self.dataset = dataset
+        self.batch_size = batch_size
+        self.shuffle = shuffle
+        self.indices = list(range(len(dataset)))
+        if self.shuffle:
+            import random
+            random.shuffle(self.indices)
+    
+    def __iter__(self):
+        for i in range(0, len(self.dataset), self.batch_size):
+            batch_indices = self.indices[i:i + self.batch_size]
+            yield [self.dataset[idx] for idx in batch_indices]
+    
+    def __len__(self):
+        return (len(self.dataset) + self.batch_size - 1) // self.batch_size

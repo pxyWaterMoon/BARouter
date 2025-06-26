@@ -3,6 +3,8 @@ from typing_extensions import TypedDict  # Python 3.10+
 from typing_extensions import NotRequired  # Python 3.11+
 import pandas as pd
 from typing import Any
+import queue
+import numpy as np
 
 class SFTSample(TypedDict, total=False):
     prompt: NotRequired[str]
@@ -39,6 +41,44 @@ class SFTDataset(Dataset[SFTSample]):
         }
         return sample
 
+class SFTDataLoader:
+    def __init__(self, dataset: SFTDataset, batch_size: int = 32, shuffle: bool = True):
+        self.dataset = dataset
+        self.batch_size = batch_size
+        self.shuffle = shuffle
+        self.indices = list(range(len(dataset)))
+        if self.shuffle:
+            import random
+            random.shuffle(self.indices)
+    
+    def __iter__(self):
+        for i in range(0, len(self.dataset), self.batch_size):
+            batch_indices = self.indices[i:i + self.batch_size]
+            yield [self.dataset[idx] for idx in batch_indices]
+    
+    def __len__(self):
+        return (len(self.dataset) + self.batch_size - 1) // self.batch_size
+    
+class SFTBufferPool:
+    def __init__(self, batch_size: int = 32, size: int = 128) -> None:
+        self.dataset = []
+        self.batch_size = batch_size
+        self.max_size = size
+        self.insert_pos = 0
+    
+    def add(self, sample: SFTSample):
+        if len(self.dataset) < self.max_size:
+            self.dataset.append(sample)
+            self.insert_pos = (self.insert_pos + 1) % self.max_size
+        else:
+            self.dataset[self.insert_pos] = sample
+            self.insert_pos = (self.insert_pos + 1) % self.max_size
+    
+    def get_batch(self):
+        if len(self.dataset) < self.batch_size:
+            raise ValueError
+        random_indices = np.random.choice(len(self.dataset), self.batch_size, replace=False)
+        return [self.dataset[idx] for idx in random_indices]
 
 if __name__ == "__main__":
     # Example usage
