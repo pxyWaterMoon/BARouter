@@ -2,7 +2,8 @@ from __future__ import annotations
 import os
 from typing import TYPE_CHECKING, Any, ClassVar
 from typing_extensions import Self  # Python 3.11+
-
+import logging
+import shutil
 import torch.utils.tensorboard as tensorboard
 
 class Logger:
@@ -14,6 +15,11 @@ class Logger:
             cls, 
             log_dir: str | os.PathLike | None = None,
     ):
+        
+        # if the log_dir is existed remove it
+        if os.path.exists(log_dir):
+            logging.warning(f"{log_dir} is exstied, remove the original dir.")
+            shutil.rmtree(log_dir)
         if cls._instance is None:
             self = cls._instance = super().__new__(
                 cls,
