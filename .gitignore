@@ -198,3 +198,6 @@ data/
 
 # Models files
 models/
+
+# Output files
+outputs/
