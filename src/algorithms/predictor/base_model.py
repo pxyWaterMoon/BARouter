@@ -1,12 +1,12 @@
-class OfflineModel():
+class BasePredictor():
     def __init__(self):
         pass
     
     def offline_training(self):
-        pass
+        raise NotImplementedError
 
     def online_update(self, X, y):
-        pass
+        raise NotImplementedError
 
     def predict(self, prompt):
-        pass
+        raise NotImplementedError

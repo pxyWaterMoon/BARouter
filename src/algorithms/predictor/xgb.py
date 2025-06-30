@@ -1,13 +1,14 @@
 import pandas as pd
 import numpy as np
-from src.algorithms.offline_model.base_model import OfflineModel
+from src.algorithms.predictor.base_model import BasePredictor
+from src.algorithms.utils import embedding_batch
 from xgboost import XGBRegressor
 
 def split(data:list, rate) ->tuple[list,list]:
     n = int(len(data)*rate)
     return data[:n],data[n:]
 
-class XGB(OfflineModel):
+class XGB(BasePredictor):
     def __init__(self, depth=4):
         self.depth=depth
         self.model = XGBRegressor(max_depth=self.depth)
@@ -37,14 +38,15 @@ class XGB(OfflineModel):
         for data in dataset:
             X.append(np.concatenate([data["prompt_embedding"],data["model_description_embedding"]]))
             y.append(data[key])
+        X, y = embedding_batch(dataset, key=key)
         X = np.array(X)
         y = np.array(y)
-        print("xgb start training...")
         self.model.fit(X,y)
+        print(f"Successfully trained the predictor of {key}.")
 
     def online_update(self, X, y):
         updated_model = XGBRegressor(max_depth=self.depth)
-        print("xgb start retraining...")
+        # print("xgb start retraining...")
         updated_model.fit(X, y, xgb_model=self.model)
         return updated_model
     

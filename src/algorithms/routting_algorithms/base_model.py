@@ -3,7 +3,7 @@ class OnlineModel():
         pass
     
     def take_action(self, prompt):
-        pass
+        return None
 
     def update(self, prompt, action, reward, cost):
-        pass
+        return

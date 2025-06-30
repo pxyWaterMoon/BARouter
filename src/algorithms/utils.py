@@ -1,5 +1,11 @@
 import torch
 import numpy as np
+import yaml
+
+def load_config(config_path: str):
+    with open(config_path, "r") as f:
+        config = yaml.safe_load(f)
+    return config
 
 def embedding_batch(batch: list, key: str | None = None, concatenate: bool = True):
     bs = len(batch)

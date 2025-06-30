@@ -1,5 +1,5 @@
-from src.algorithms.online_models.base_model import OnlineModel
-from src.algorithms.offline_model.xgb import XGB
+from src.algorithms.routting_algorithms.base_model import OnlineModel
+from src.algorithms.predictor.xgb import XGB
 import numpy as np
 
 class AUPD(OnlineModel):
@@ -17,12 +17,15 @@ class AUPD(OnlineModel):
         self.buffer_size = buffer_size
     
     def take_action(self, X):
-        predict_reward:np.ndarray = self.rmodel.predict(X)
-        predict_cost:np.ndarray = self.cmodel.predict(X)
+        # print(X.shape)
+        # X: (bs, K, d)
+
+        predict_reward:np.ndarray = self.rmodel.predict(X) # (bs, K)
+        predict_cost:np.ndarray = self.cmodel.predict(X) # (bs, K)
         # print(predict_cost.shape)
 
-        weight = predict_reward - (self.Q/self.V)*predict_cost
-        action = np.argmax(weight)
+        weight = predict_reward - (self.Q/self.V)*predict_cost # (bs, K)
+        action = np.argmax(weight, axis=-1) # (bs, 1)
         # print(action)
         self.Q = max(self.Q + predict_cost[action] - self.budget,0)
         return action
