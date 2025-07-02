@@ -17,14 +17,15 @@ def run():
 
     dataset = PromptOnlyDataset(simuler_dataset)
     loader = PromptOnlyDataLoader(dataset)
-    env_model = TabelBasedModel(simuler_dataset, budget=60)
-    logger = Logger("./outputs/logs/AUPD_2e-3/")
-
+    total_budget = 5 # dollar
+    env_model = TabelBasedModel(simuler_dataset, budget=total_budget)
+    logger = Logger(f"./outputs/logs/AUPD_budget_{total_budget}/")
+    T = len(loader)
     rmodel = XGB()
     cmodel = XGB()
     rmodel.offline_training(SFT_dataset,key="reward")
     cmodel.offline_training(SFT_dataset,key="cost")
-    agent = AUPD(rmodel,cmodel,len(dataset),budget=2e-3)
+    agent = AUPD(rmodel,cmodel,len(dataset),budget=total_budget/T)
     with tqdm(total=len(loader)) as pbar_total:
         for t, batch in enumerate(loader):
             X = embedding_batch(batch)
@@ -47,10 +48,13 @@ def run():
                 {
                     "train/reward": sum(rewards)/len(rewards),
                     "train/cost": sum(costs)/len(costs),
+                    "train/budget": env_model.budget
                 },
                 step=t,
             )
+            logger.log_action(action)
             pbar_total.update(1)
+    logger.plot_action_log()
                 
 
 if __name__ == "__main__":
