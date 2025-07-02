@@ -46,10 +46,43 @@ class Logger:
             self.writer.add_scalar(key, value, step)
 
 
-    def log_action(self, action):
+    def log_signal(self, actions, rewards, costs, step):
         if "actions" not in self.history.keys():
             self.history["actions"] = []
-        self.history["actions"].append(action)
+        if "rewards" not in self.history.keys():
+            self.history["rewards"] = []
+        if "costs" not in self.history.keys():
+            self.history["costs"] = []
+        if "global_step" not in self.history.keys():
+            self.history["global_step"] = []
+        self.history["actions"].append(actions)
+        self.history["rewards"].append(rewards)
+        self.history["costs"].append(costs)
+        self.history["global_step"].append(step)
+    
+    def get_log_value(self, key: str, step: range | int) -> Any:
+        """
+        Get the logged value for a specific key at a given step.
+        
+        Args:
+            key (str): The key to retrieve the value for.
+            step (int): The step at which the value was logged.
+        
+        Returns:
+            Any: The logged value or None if not found.
+        """
+        if key not in self.history:
+            raise KeyError(f"Key '{key}' not found in history.")
+        log_value = self.history[key]
+        values = []
+        if isinstance(step, range):
+            for s in step:
+                values += log_value[s]
+        elif isinstance(step, int):
+            values = log_value[step]
+        else:
+            raise TypeError("Step must be an integer or a range.")
+        return sum(values) / len(values)
     
     # def plot_action_log(self):
     #     fig = plt.figure(figsize=(5, 4))
@@ -78,7 +111,10 @@ class Logger:
         
         # 统计每种action的数量
         action_counts = {}
-        for action in self.history["actions"]:
+        actions = []
+        for batch in self.history["actions"]:
+            actions += batch
+        for action in actions:
             if action not in action_counts:
                 action_counts[action] = 0
             action_counts[action] += 1

@@ -17,7 +17,7 @@ def run():
 
     dataset = PromptOnlyDataset(simuler_dataset)
     loader = PromptOnlyDataLoader(dataset)
-    total_budget = 5 # dollar
+    total_budget = 10 # dollar
     env_model = TabelBasedModel(simuler_dataset, budget=total_budget)
     logger = Logger(f"./outputs/logs/AUPD_budget_{total_budget}/")
     T = len(loader)
@@ -25,12 +25,13 @@ def run():
     cmodel = XGB()
     rmodel.offline_training(SFT_dataset,key="reward")
     cmodel.offline_training(SFT_dataset,key="cost")
-    agent = AUPD(rmodel,cmodel,len(dataset),budget=total_budget/T)
+    agent = AUPD(rmodel,cmodel,logger,len(dataset),budget=total_budget/T)
     with tqdm(total=len(loader)) as pbar_total:
         for t, batch in enumerate(loader):
             X = embedding_batch(batch)
             rewards = []
             costs = []
+            actions = []
             for sample, x in zip(batch, X):
                 prompt = sample["prompt"]
                 action_index = agent.take_action(x)
@@ -43,16 +44,21 @@ def run():
                     response, reward, cost = env_model.feedback(prompt, action)
                 rewards.append(reward)
                 costs.append(cost)
+                actions.append(action)
                 agent.update(x[action_index], reward, cost)
+            current_reward = sum(rewards)/len(rewards)
+            current_cost = sum(costs)/len(costs)
+            logger.log_signal(actions, rewards, costs, t)
             logger.log_scalar(
                 {
-                    "train/reward": sum(rewards)/len(rewards),
-                    "train/cost": sum(costs)/len(costs),
+                    "train/current_reward": current_reward,
+                    "train/curremt_cost": current_cost,
+                    "train/average_reward": logger.get_log_value("rewards", range(t+1)),
+                    "train/average_cost": logger.get_log_value("costs", range(t+1)),
                     "train/budget": env_model.budget
                 },
                 step=t,
             )
-            logger.log_action(action)
             pbar_total.update(1)
     logger.plot_action_log()
                 
