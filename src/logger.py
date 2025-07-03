@@ -8,6 +8,7 @@ import shutil
 import torch.utils.tensorboard as tensorboard
 import torch
 import numpy as np
+import json
 
 class Logger:
 
@@ -46,7 +47,9 @@ class Logger:
             self.writer.add_scalar(key, value, step)
 
 
-    def log_signal(self, actions, rewards, costs, step):
+    def log_signal(self, prompts, actions, rewards, costs, step):
+        if "prompts" not in self.history.keys():
+            self.history["prompts"] = []
         if "actions" not in self.history.keys():
             self.history["actions"] = []
         if "rewards" not in self.history.keys():
@@ -55,6 +58,7 @@ class Logger:
             self.history["costs"] = []
         if "global_step" not in self.history.keys():
             self.history["global_step"] = []
+        self.history["prompts"].append(prompts)
         self.history["actions"].append(actions)
         self.history["rewards"].append(rewards)
         self.history["costs"].append(costs)
@@ -156,3 +160,14 @@ class Logger:
         #     tensor_image = torch.tensor(image_array).unsqueeze(0)
         
         # self.writer.add_image("results/ActionCounts", tensor_image)
+    
+    def save_history(self):
+        """
+        Save the history to a JSON file.
+        
+        Args:
+            file_name (str): The name of the file to save the history.
+        """
+        file_name = os.path.join(self.log_dir, "history.json")
+        with open(file_name, "w") as f:
+            json.dump(self.history, f, indent=4)
