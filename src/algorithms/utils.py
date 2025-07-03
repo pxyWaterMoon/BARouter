@@ -66,7 +66,7 @@ def embedding_batch(batch: list, key: str | None = None, concatenate: bool = Tru
         else:
             return (x, a) if key is None else (x, a, y)
     else:
-        ValueError("No embeeding keys")
+        ValueError("No embedding keys")
 
 
 # test embedding batch function
