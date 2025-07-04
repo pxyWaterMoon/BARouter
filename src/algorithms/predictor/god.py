@@ -8,25 +8,19 @@ def split(data:list, rate) ->tuple[list,list]:
     return data[:n],data[n:]
 
 class God(BasePredictor):
-    def __init__(self, dataset):
+    def __init__(self, dataset, key):
         self.gt = {data["prompt"]: data["ground_truth"] for data in dataset}
+        self.key = key
     
     def offline_training(self, dataset, key:str):
-        self.key = key
+        pass
 
     def online_update(self, X, y):
         return
     
-    def predict(self, X):
-        if isinstance(X, np.ndarray):
-            X = X.tolist()
-        res = []
-        for x in X:
-            prompt = x[0]
-            if prompt not in self.gt:
-                raise ValueError(f"Prompt {prompt} not found in ground truth.")
-            res.append(self.gt[prompt][self.key])
-        return np.array(res)
+    def predict(self, prompt, action):
+        return self.gt[prompt][action][self.key]
+            
 
 
 
