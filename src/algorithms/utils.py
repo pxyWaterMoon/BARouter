@@ -1,11 +1,30 @@
 import torch
 import numpy as np
-import yaml
+from src.datasets.prompt_only import PromptOnlySample
 
-def load_config(config_path: str):
-    with open(config_path, "r") as f:
-        config = yaml.safe_load(f)
-    return config
+def embedding_sample(sample: PromptOnlySample, key: str | None = None, concatenate: bool = True):
+    # print(batch)
+    
+    available_models = list(sample["available_models_description"].keys())
+    k = len(available_models)
+    x = np.array([sample["prompt_embedding"] for _ in range(k)])  # (K, dx)
+    a = [sample["available_models_description_embeddings"][model_name] for model_name in available_models]
+    if key is not None:
+        gt = sample["ground_truth"]
+        if key not in gt.keys():
+            raise ValueError(f"{key} not in ground truth")
+        y = [gt[model_name][key] for model_name in available_models]
+    if concatenate:
+        if key is not None:
+            return np.concatenate([x, a], axis=-1), np.array(y)
+        else:
+            return np.concatenate([x, a], axis=-1)
+    else:
+        if key is not None:
+            return np.array(x), np.array(a), np.array(y)
+        else:
+            return np.array(x), np.array(a)
+        
 
 def embedding_batch(batch: list, key: str | None = None, concatenate: bool = True):
     bs = len(batch)

@@ -30,7 +30,29 @@ class SimulerDataset(Dataset[SimulerSample]):
         }
         return sample
 
+class SimulerDataLoader:
+    def __init__(self, dataset: SimulerDataset, shuffle: bool = True):
+        self.dataset = dataset
+        self.shuffle = shuffle
+        self.indices = list(range(len(dataset)))
+        if self.shuffle:
+            import random
+            random.shuffle(self.indices)
+        self.current_index = 0
+        
+    def __len__(self):
+        return len(self.indices)
+    
+    def get_sample(self):
+        if self.current_index >= len(self.indices):
+            raise StopIteration("No more samples available.")
+        index = self.indices[self.current_index]
+        sample = self.dataset[index]
+        self.current_index += 1
+        return sample
 
+    def reset(self):
+        self.current_index = 0
 
 
         

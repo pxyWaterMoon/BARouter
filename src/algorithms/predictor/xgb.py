@@ -45,10 +45,12 @@ class XGB(BasePredictor):
         print(f"Successfully trained the predictor of {key}.")
 
     def online_update(self, X, y):
-        updated_model = XGBRegressor(max_depth=self.depth)
+        # print(X.shape, y.shape)
+        updated_model = XGBRegressor(n_estimators=10, learning_rate=0.05, max_depth=self.depth)
         # print("xgb start retraining...")
         updated_model.fit(X, y, xgb_model=self.model)
-        return updated_model
+        self.model = updated_model
+        # return updated_model
     
     def predict(self, X):
         res = self.model.predict(X)

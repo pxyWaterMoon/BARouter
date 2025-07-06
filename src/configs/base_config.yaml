@@ -1,2 +1,15 @@
-dataset:
-  simulater
+project_name: "xgb_AUPD_routerbench"
+environment:
+  type: "table"
+  file_path: "data/processed/all-mpnet-base-v2/routerbench_0shot/train.parquet"
+agent:
+  type: "AUPD"
+  rmodel:
+    type: "xgb"
+    sft_file_path: "data/processed/all-mpnet-base-v2/routerbench_0shot/test.parquet"
+  cmodel:
+    type: "xgb"
+    sft_file_path: "data/processed/all-mpnet-base-v2/routerbench_0shot/test.parquet"
+log_dir: "outputs/logs"
+T: 25000
+budget: 10

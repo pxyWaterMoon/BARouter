@@ -78,10 +78,9 @@ class Logger:
         if key not in self.history:
             raise KeyError(f"Key '{key}' not found in history.")
         log_value = self.history[key]
-        values = []
+        
         if isinstance(step, range):
-            for s in step:
-                values += log_value[s]
+            values = [log_value[s] for s in step]
         elif isinstance(step, int):
             values = log_value[step]
         else:
