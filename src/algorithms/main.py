@@ -21,7 +21,7 @@ def run_system(T, env, agent, logger):
                 cost = 0
             else:
                 response, reward, cost = env.feedback(sample, action)
-            agent.update(sample, reward, cost)
+            agent.update(reward, cost)
             logger.log_signal(sample["prompt"], action, reward, cost, t)
             logger.log_scalar(
                 {
