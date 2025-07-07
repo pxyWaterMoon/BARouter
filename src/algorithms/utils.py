@@ -2,7 +2,19 @@ import torch
 import numpy as np
 from src.datasets.prompt_only import PromptOnlySample
 
-def embedding_sample(sample: PromptOnlySample, key: str | None = None, concatenate: bool = True):
+def sample2prompt(sample: PromptOnlySample, key: str | None = None, concatenate: bool = True, template: str | None = None):
+    available_models = list(sample["available_models_description"].keys())
+    k = len(available_models)
+    x = np.array([sample["prompt"] for _ in range(k)])  # (K, dx)
+    a = [model_name for model_name in available_models]
+    if key is not None:
+        gt = sample["ground_truth"]
+        if key not in gt.keys():
+            raise ValueError(f"{key} not in ground truth")
+        y = [gt[model_name][key] for model_name in available_models]
+    return x, a
+
+def sample2given_embedding(sample: PromptOnlySample, key: str | None = None, concatenate: bool = True):
     # print(batch)
     
     available_models = list(sample["available_models_description"].keys())

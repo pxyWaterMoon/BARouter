@@ -7,7 +7,7 @@ import os
 from src.algorithms.routting_algorithms.AUPD import AUPD
 from src.logger import Logger
 from tqdm import tqdm
-from src.algorithms.utils import embedding_sample
+
 
 def run_system(T, env, agent, logger):
     print(f"Starting system run for {T} rounds...")
@@ -45,8 +45,9 @@ def build_predictor_models(model_config, key):
         model.offline_training(SFT_dataset, key=key)
     elif model_config["type"] == "god":
         from src.algorithms.predictor.god import God
+        simuler_dataset = SimulerDataset(file_path=model_config["file_path"])
         model = God(
-            file_path=model_config["file_path"],
+            dataset=simuler_dataset,
             key=key,
         )
     else:
@@ -64,6 +65,16 @@ def build_environment(env_config, budget, T):
         raise ValueError(f"Unsupported environment type: {env_config['type']}")
     return env_model
 
+def select_embedding_fn(name):
+    if name == "sample2given_embedding":
+        from src.algorithms.utils import sample2given_embedding
+        return sample2given_embedding
+    elif name == "sample2prompt":
+        from src.algorithms.utils import sample2prompt
+        return sample2prompt
+    else:
+        raise ValueError(f"Unsupported embbeding function: {name}")
+
 def build_agent(agent_config, B, T, logger):
     # build the predictor models
     if "rmodel" in agent_config.keys():
@@ -77,8 +88,8 @@ def build_agent(agent_config, B, T, logger):
             cmodel=cmodel,
             logger=logger,
             T=T,
-            budget=B, # todo: align it with the budget in AUPD code
-            embedding_fn=embedding_sample,  # Function to embed the sample
+            budget=B,
+            embedding_fn=select_embedding_fn(agent_config["embedding_fn"]),  # Function to embed the sample
             buffer_size=agent_config.get("buffer_size", 1024)
         )
     else:
@@ -91,8 +102,6 @@ def main(config):
     
     B = config["budget"]
     T = config["T"]
-    
-
     # Initialize logger
     logger_filename = f"{config['project_name']}"
     logger_path = os.path.join(config["log_dir"], logger_filename)

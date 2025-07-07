@@ -1,0 +1,16 @@
+project_name: "god_AUPD_routerbench"
+environment:
+  type: "table"
+  file_path: "data/processed/all-mpnet-base-v2/routerbench_0shot/online.parquet"
+agent:
+  type: "AUPD"
+  rmodel:
+    type: "god"
+    file_path: "data/processed/all-mpnet-base-v2/routerbench_0shot/online.parquet"
+  cmodel:
+    type: "god"
+    file_path: "data/processed/all-mpnet-base-v2/routerbench_0shot/online.parquet"
+  embedding_fn: "sample2prompt"
+log_dir: "outputs/logs"
+T: 29196
+budget: 10

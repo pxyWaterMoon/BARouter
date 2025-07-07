@@ -11,7 +11,7 @@ def argument_parser():
     parser.add_argument(
         "--config_path",
         type=str,
-        default="./src/configs/base_config.yaml",
+        default="./src/configs/xgb_AUPD_routerbench.yaml",
         help="Path to the YAML configuration file."
     )
     parser.add_argument(

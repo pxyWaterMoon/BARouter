@@ -5,7 +5,7 @@
     
 #     def feedback(self, x, action):
 #         response = self.gt[x][action]["response"]
-#         cost = self.gt[x][action]["total_cost"]
+#         cost = self.gt[x][action]["cost"]
 #         if self.budget < cost:
 #             return None, 0, 0
 #         else:
@@ -15,7 +15,7 @@
         
         
         
-        # return , self.gt[x][action]["reward"], self.gt[x][action]["total_cost"]
+        # return , self.gt[x][action]["reward"], self.gt[x][action]["cost"]
     
 from src.envs.base_env import BaseEnv
 from src.datasets.simulerdata import SimulerDataLoader
@@ -46,7 +46,7 @@ class TabelBasedEnv(BaseEnv):
             raise ValueError("Sample prompt does not match current sample. please call get_sample() first.")
         gt = self.current_sample["ground_truth"]
         response = gt[action]["response"]
-        cost = gt[action]["total_cost"]
+        cost = gt[action]["cost"]
         if self.current_budget < cost:
             return None, 0, 0
         else:

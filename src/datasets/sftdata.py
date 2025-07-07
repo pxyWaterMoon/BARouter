@@ -37,7 +37,7 @@ class SFTDataset(Dataset[SFTSample]):
             "model_description": row["available_models_description"][model_name],
             "model_description_embedding": row["available_models_description_embeddings"][model_name],
             "reward": row["gt"][model_name]["reward"] if "gt" in row and model_name in row["gt"] else None,
-            "cost": row["gt"][model_name]["total_cost"] if "gt" in row and model_name in row["gt"] else None,
+            "cost": row["gt"][model_name]["cost"] if "gt" in row and model_name in row["gt"] else None,
         }
         return sample
 

@@ -63,7 +63,7 @@ for index in tqdm(range(len(rawdata)), desc="Processing data"):
         gt_per_model = {
             "response": df[model + "|model_response"],
             "reward": df[model],
-            "total_cost": df[model + "|total_cost"],
+            "cost": df[model + "|cost"],
         }
         gt[model] = gt_per_model
     processed_data = {

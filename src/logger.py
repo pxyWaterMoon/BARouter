@@ -114,10 +114,7 @@ class Logger:
         
         # 统计每种action的数量
         action_counts = {}
-        actions = []
-        for batch in self.history["actions"]:
-            actions += batch
-        for action in actions:
+        for action in self.history["actions"]:
             if action not in action_counts:
                 action_counts[action] = 0
             action_counts[action] += 1
@@ -167,6 +164,7 @@ class Logger:
         Args:
             file_name (str): The name of the file to save the history.
         """
+        self.plot_action_log()
         file_name = os.path.join(self.log_dir, "history.json")
         with open(file_name, "w") as f:
             json.dump(self.history, f, indent=4)

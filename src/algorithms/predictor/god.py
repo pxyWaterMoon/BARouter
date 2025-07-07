@@ -11,6 +11,7 @@ class God(BasePredictor):
     def __init__(self, dataset, key):
         self.gt = {data["prompt"]: data["ground_truth"] for data in dataset}
         self.key = key
+        self.concatenate = False
     
     def offline_training(self, dataset, key:str):
         pass
@@ -18,8 +19,8 @@ class God(BasePredictor):
     def online_update(self, X, y):
         return
     
-    def predict(self, prompt, action):
-        return self.gt[prompt][action][self.key]
+    def predict(self, prompts, actions):
+        return np.array([self.gt[prompt][action][self.key] for prompt, action in zip(prompts, actions)])
             
 
 

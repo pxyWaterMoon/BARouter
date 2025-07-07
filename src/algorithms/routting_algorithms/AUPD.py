@@ -12,7 +12,8 @@ class AUPD(OnlineModel):
         self.Q = 0
         self.V = self.b * np.sqrt(T)
 
-        self.X_buffer = []
+        self.rinput_buffer = []
+        self.cinput_buffer = []
         self.r_buffer = []
         self.c_buffer = []
         self.buffer_size = buffer_size
@@ -21,14 +22,23 @@ class AUPD(OnlineModel):
         self.embedding_fn = embedding_fn
     
     def take_action(self, sample):
-        if self.embedding_fn is None:
-            raise ValueError("Embedding function is not provided.")
-        X = self.embedding_fn(sample)
         action_space = list(sample["available_models_description"].keys())
+        
+        cmodel_input = self.embedding_fn(sample, concatenate=self.cmodel.concatenate)
         # print(X.shape)
         # X: (K, d)
-        predict_reward:np.ndarray = self.rmodel.predict(X) # (K)
-        predict_cost:np.ndarray = self.cmodel.predict(X) # (K)
+        if self.rmodel.concatenate:
+            rmodel_input = self.embedding_fn(sample, concatenate=self.rmodel.concatenate)
+            predict_reward:np.ndarray = self.rmodel.predict(rmodel_input) # (K)
+        else:
+            rmodel_input_x, rmodel_input_a = self.embedding_fn(sample, concatenate=self.rmodel.concatenate)
+            predict_reward:np.ndarray = self.rmodel.predict(rmodel_input_x, rmodel_input_a) # (K)
+        if self.cmodel.concatenate:
+            cmodel_input = self.embedding_fn(sample, concatenate=self.cmodel.concatenate)
+            predict_cost:np.ndarray = self.cmodel.predict(cmodel_input) # (K)
+        else:
+            cmodel_input_x, cmodel_input_a = self.embedding_fn(sample, concatenate=self.cmodel.concatenate)
+            predict_cost:np.ndarray = self.cmodel.predict(cmodel_input_x, cmodel_input_a) # (K)
         # print(predict_cost.shape)
         weight = predict_reward - (self.Q/self.V)*predict_cost # (K)
         action_index = np.argmax(weight)
@@ -41,7 +51,14 @@ class AUPD(OnlineModel):
             step=self.t,
         )
         # print(action)
-        self.X_buffer.append(X[action_index])
+        if self.rmodel.concatenate:
+            self.rinput_buffer.append(rmodel_input[action_index])
+        else:
+            self.rinput_buffer.append((rmodel_input_x[action_index], rmodel_input_a[action_index]))
+        if self.cmodel.concatenate:
+            self.cinput_buffer.append(cmodel_input[action_index])
+        else:
+            self.cinput_buffer.append((cmodel_input_x[action_index], cmodel_input_a[action_index]))
         return action
     
     def update(self, reward, cost):
@@ -55,10 +72,11 @@ class AUPD(OnlineModel):
                 step=self.t,
             )
         self.t += 1
-        if len(self.X_buffer) > self.buffer_size:
-            self.rmodel.online_update(np.array(self.X_buffer),np.array(self.r_buffer))
-            self.cmodel.online_update(np.array(self.X_buffer),np.array(self.c_buffer))
-            self.X_buffer = []
+        if len(self.rinput_buffer) > self.buffer_size:
+            self.rmodel.online_update(np.array(self.rinput_buffer),np.array(self.r_buffer))
+            self.cmodel.online_update(np.array(self.cinput_buffer),np.array(self.c_buffer))
+            self.rinput_buffer = []
+            self.cinput_buffer = []
             self.r_buffer = []
             self.c_buffer = []
             

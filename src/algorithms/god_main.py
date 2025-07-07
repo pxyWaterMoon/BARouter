@@ -22,7 +22,7 @@ def run():
     logger = Logger(f"./outputs/logs/god_AUPD_budget_{total_budget}/")
     T = len(loader)
     rmodel = God(simuler_dataset, key="reward")
-    cmodel = God(simuler_dataset, key="total_cost")
+    cmodel = God(simuler_dataset, key="cost")
     pre_budget = total_budget / T
     V = pre_budget * np.sqrt(T)
     Q = 0
