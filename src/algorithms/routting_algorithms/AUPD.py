@@ -64,7 +64,7 @@ class AUPD(OnlineModel):
     def update(self, reward, cost):
         self.r_buffer.append(reward)
         self.c_buffer.append(cost)
-        self.Q = max(self.Q + cost - self.budget,0)
+        self.Q = max(self.Q + cost - self.b,0)
         self.logger.log_scalar(
                 {
                     "train/Q": self.Q
