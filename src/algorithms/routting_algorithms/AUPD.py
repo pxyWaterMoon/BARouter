@@ -4,13 +4,15 @@ from src.logger import Logger
 import numpy as np
 
 class AUPD(OnlineModel):
-    def __init__(self, rmodel:XGB, cmodel:XGB, logger:Logger, T, budget, embedding_fn, buffer_size = 1024):
+    def __init__(self, rmodel:XGB, cmodel:XGB, logger:Logger, T, budget, embedding_fn, buffer_size = 1024, v_scale = 1.0):
         self.budget = budget
         self.rmodel = rmodel
         self.cmodel = cmodel
         self.b = self.budget / T
         self.Q = 0
         self.V = self.b * np.sqrt(T)
+
+        self.V = self.V * v_scale # scale
 
         self.rinput_buffer = []
         self.cinput_buffer = []

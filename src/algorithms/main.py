@@ -90,7 +90,8 @@ def build_agent(agent_config, B, T, logger):
             T=T,
             budget=B,
             embedding_fn=select_embedding_fn(agent_config["embedding_fn"]),  # Function to embed the sample
-            buffer_size=agent_config.get("buffer_size", 1024)
+            buffer_size=agent_config.get("buffer_size", 1024),
+            v_scale=agent_config["v_scale"]
         )
     else:
         raise ValueError(f"Unsupported agent type: {agent_config['type']}")
