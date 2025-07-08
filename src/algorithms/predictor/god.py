@@ -21,10 +21,4 @@ class God(BasePredictor):
     
     def predict(self, prompts, actions):
         return np.array([self.gt[prompt][action][self.key] for prompt, action in zip(prompts, actions)])
-            
-
-
-
-if __name__=="__main__":
-    model = XGB()
-    model.predict(np.zeros((11,768+768)))
+    
