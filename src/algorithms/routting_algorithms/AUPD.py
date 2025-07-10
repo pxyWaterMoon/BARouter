@@ -23,29 +23,38 @@ class AUPD(OnlineModel):
         self.logger = logger
         self.embedding_fn = embedding_fn
         self.allow_null = allow_null
+        self.current_sample = None
     
     def take_action(self, sample):
+        self.current_sample = sample.copy()
         action_space = list(sample["available_models_description"].keys())
-        
-        cmodel_input = self.embedding_fn(sample, concatenate=self.cmodel.concatenate)
-        # print(X.shape)
-        # X: (K, d)
-        if self.rmodel.concatenate:
-            rmodel_input = self.embedding_fn(sample, concatenate=self.rmodel.concatenate)
-            predict_reward:np.ndarray = self.rmodel.predict(rmodel_input) # (K)
-        else:
-            rmodel_input_x, rmodel_input_a = self.embedding_fn(sample, concatenate=self.rmodel.concatenate)
-            predict_reward:np.ndarray = self.rmodel.predict(rmodel_input_x, rmodel_input_a) # (K)
-        if self.cmodel.concatenate:
-            cmodel_input = self.embedding_fn(sample, concatenate=self.cmodel.concatenate)
-            predict_cost:np.ndarray = self.cmodel.predict(cmodel_input) # (K)
-        else:
-            cmodel_input_x, cmodel_input_a = self.embedding_fn(sample, concatenate=self.cmodel.concatenate)
-            predict_cost:np.ndarray = self.cmodel.predict(cmodel_input_x, cmodel_input_a) # (K)
+        sample_list = []
+        for action_index, action in enumerate(action_space):
+            sample = self.current_sample.copy()
+            sample["model_name"] = action
+            sample["model_description"] = sample["available_models_description"][action]
+            sample["model_description_embedding"] = sample["available_models_description_embeddings"][action]
+            sample["model_index"] = action_index
+            sample_list.append(sample)
+        predict_reward = self.rmodel.predict(sample_list)
+        predict_cost = self.cmodel.predict(sample_list)
+        # cmodel_input = self.embedding_fn(sample, concatenate=self.cmodel.concatenate)
+        # # print(X.shape)
+        # # X: (K, d)
+        # if self.rmodel.concatenate:
+        #     rmodel_input = self.embedding_fn(sample, concatenate=self.rmodel.concatenate)
+        #     predict_reward:np.ndarray = self.rmodel.predict(rmodel_input) # (K)
+        # else:
+        #     rmodel_input_x, rmodel_input_a = self.embedding_fn(sample, concatenate=self.rmodel.concatenate)
+        #     predict_reward:np.ndarray = self.rmodel.predict(rmodel_input_x, rmodel_input_a) # (K)
+        # if self.cmodel.concatenate:
+        #     cmodel_input = self.embedding_fn(sample, concatenate=self.cmodel.concatenate)
+        #     predict_cost:np.ndarray = self.cmodel.predict(cmodel_input) # (K)
+        # else:
+        #     cmodel_input_x, cmodel_input_a = self.embedding_fn(sample, concatenate=self.cmodel.concatenate)
+        #     predict_cost:np.ndarray = self.cmodel.predict(cmodel_input_x, cmodel_input_a) # (K)
         # print(predict_cost.shape)
         weight = predict_reward - (self.Q/self.V)*predict_cost # (K)
-        action_index = np.argmax(weight)
-
         ########## Null action ##########
         if np.max(weight) < 0 and self.allow_null:
             self.logger.log_scalar(
@@ -59,6 +68,14 @@ class AUPD(OnlineModel):
         ########## Null action ##########
 
         action = action_space[action_index]
+        action_index = np.argmax(weight)
+        action = action_space[action_index]
+        self.current_sample["model_index"] = action_index
+        self.current_sample["model_name"] = action
+        self.current_sample["model_description"] = sample["available_models_description"][action]
+        self.current_sample["model_description_embedding"] = sample["available_models_description_embeddings"][action]
+        self.current_sample["predict_reward"] = predict_reward[action_index]
+        self.current_sample["predict_cost"] = predict_cost[action_index]
         self.logger.log_scalar(
             {
                 "train/predict_reward": predict_reward[action_index],
@@ -66,25 +83,17 @@ class AUPD(OnlineModel):
             },
             step=self.t,
         )
-        # print(action)
-        if self.rmodel.concatenate:
-            self.rinput_buffer.append(rmodel_input[action_index])
-        else:
-            self.rinput_buffer.append((rmodel_input_x[action_index], rmodel_input_a[action_index]))
-        if self.cmodel.concatenate:
-            self.cinput_buffer.append(cmodel_input[action_index])
-        else:
-            self.cinput_buffer.append((cmodel_input_x[action_index], cmodel_input_a[action_index]))
         return action
     
     def update(self, reward, cost):
+        # self.r_buffer.append(reward)
+        # self.c_buffer.append(cost)
+        self.current_sample["reward"] = reward
+        self.current_sample["cost"] = cost
+        self.rmodel.online_update(self.current_sample)
+        self.cmodel.online_update(self.current_sample)
+        self.current_sample = None
         self.Q = max(self.Q + cost - self.b,0)
-
-        if (len(self.r_buffer) == len(self.rinput_buffer)): # took null action in current round
-            return
-        
-        self.r_buffer.append(reward)
-        self.c_buffer.append(cost)
         self.logger.log_scalar(
                 {
                     "train/Q": self.Q
@@ -92,11 +101,3 @@ class AUPD(OnlineModel):
                 step=self.t,
             )
         self.t += 1
-        if len(self.rinput_buffer) > self.buffer_size:
-            self.rmodel.online_update(np.array(self.rinput_buffer),np.array(self.r_buffer))
-            self.cmodel.online_update(np.array(self.cinput_buffer),np.array(self.c_buffer))
-            self.rinput_buffer = []
-            self.cinput_buffer = []
-            self.r_buffer = []
-            self.c_buffer = []
-            

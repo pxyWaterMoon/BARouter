@@ -5,6 +5,7 @@ environment:
 agent:
   type: "AUPD"
   v_scale : 0.1
+  allow_null : False
   rmodel:
     type: "xgb"
     sft_file_path: "data/processed/all-mpnet-base-v2/routerbench_0shot/offline.parquet"

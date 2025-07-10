@@ -40,9 +40,9 @@ def run_system(T, env, agent, logger):
 def build_predictor_models(model_config, key):
     if model_config["type"] == "xgb":
         from src.algorithms.predictor.xgb import XGB
-        model = XGB()
+        from src.algorithms.predictor.xgb import XGB
         SFT_dataset = SFTDataset(file_path=model_config["sft_file_path"])
-        model.offline_training(SFT_dataset, key=key)
+        model = XGB(SFT_dataset=SFT_dataset, key=key)
     elif model_config["type"] == "god":
         from src.algorithms.predictor.god import God
         simuler_dataset = SimulerDataset(file_path=model_config["file_path"])
