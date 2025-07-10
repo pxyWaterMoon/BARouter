@@ -34,6 +34,12 @@ def argument_parser():
         type=int,
         help="Number of rounds for the system."
     )
+    parser.add_argument(
+        "--allow_null",
+        type=bool,
+        default=False,
+        help="Allow null action or not"
+    )
     return parser.parse_args()
 
 def load_config(args):
@@ -58,4 +64,6 @@ def load_config(args):
         config["T"] = args.T
     if args.log_dir:
         config["log_dir"] = args.log_dir
+    if args.allow_null:
+        config["agent"]["allow_null"] = args.allow_null
     return config

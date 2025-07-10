@@ -4,7 +4,7 @@ from src.logger import Logger
 import numpy as np
 
 class AUPD(OnlineModel):
-    def __init__(self, rmodel:XGB, cmodel:XGB, logger:Logger, T, budget, embedding_fn, buffer_size = 1024, v_scale = 1.0):
+    def __init__(self, rmodel:XGB, cmodel:XGB, logger:Logger, T, budget, embedding_fn, buffer_size = 1024, v_scale = 1.0, allow_null = False):
         self.budget = budget
         self.rmodel = rmodel
         self.cmodel = cmodel
@@ -22,6 +22,7 @@ class AUPD(OnlineModel):
         self.t = 0
         self.logger = logger
         self.embedding_fn = embedding_fn
+        self.allow_null = allow_null
     
     def take_action(self, sample):
         action_space = list(sample["available_models_description"].keys())
@@ -44,6 +45,19 @@ class AUPD(OnlineModel):
         # print(predict_cost.shape)
         weight = predict_reward - (self.Q/self.V)*predict_cost # (K)
         action_index = np.argmax(weight)
+
+        ########## Null action ##########
+        if np.max(weight) < 0 and self.allow_null:
+            self.logger.log_scalar(
+                {
+                    "train/predict_reward": 0,
+                    "train/predict_cost": 0,
+                },
+                step=self.t,
+            )
+            return "None"
+        ########## Null action ##########
+
         action = action_space[action_index]
         self.logger.log_scalar(
             {
@@ -64,9 +78,13 @@ class AUPD(OnlineModel):
         return action
     
     def update(self, reward, cost):
+        self.Q = max(self.Q + cost - self.b,0)
+
+        if (len(self.r_buffer) == len(self.rinput_buffer)): # took null action in current round
+            return
+        
         self.r_buffer.append(reward)
         self.c_buffer.append(cost)
-        self.Q = max(self.Q + cost - self.b,0)
         self.logger.log_scalar(
                 {
                     "train/Q": self.Q

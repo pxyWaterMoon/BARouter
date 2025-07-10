@@ -15,7 +15,7 @@ def run_system(T, env, agent, logger):
         for t in range(T):
             sample = env.get_sample()
             action = agent.take_action(sample)
-            if action is None:
+            if action == "None":
                 response = None
                 reward = 0
                 cost = 0
@@ -91,7 +91,8 @@ def build_agent(agent_config, B, T, logger):
             budget=B,
             embedding_fn=select_embedding_fn(agent_config["embedding_fn"]),  # Function to embed the sample
             buffer_size=agent_config.get("buffer_size", 1024),
-            v_scale=agent_config["v_scale"]
+            v_scale=agent_config["v_scale"],
+            allow_null=agent_config["allow_null"]
         )
     else:
         raise ValueError(f"Unsupported agent type: {agent_config['type']}")
