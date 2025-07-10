@@ -60,9 +60,8 @@ class XGB(BasePredictor):
         print(f"Successfully trained the predictor of {key}.")
 
     def online_update(self, sample):
-        if len(self.buffer) < self.buffer_size:
-            self.buffer.append(sample)
-        else:
+        self.buffer.append(sample)
+        if len(self.buffer) >= self.buffer_size:
             self.buffer.append(sample)
             X, y = self.sample2input(self.buffer, key=self.key)
             # print(X.shape, y.shape)

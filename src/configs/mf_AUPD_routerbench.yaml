@@ -1,0 +1,18 @@
+project_name: "mf_AUPD_routerbenc_b=10_vs=1e-1"
+environment:
+  type: "table"
+  file_path: "data/processed/all-mpnet-base-v2/routerbench_0shot/online.parquet"
+agent:
+  type: "AUPD"
+  v_scale : 0.1
+  allow_null : False
+  rmodel:
+    type: "mf"
+    sft_file_path: "data/processed/all-mpnet-base-v2/routerbench_0shot/online.parquet"
+  cmodel:
+    type: "mf"
+    sft_file_path: "data/processed/all-mpnet-base-v2/routerbench_0shot/online.parquet"
+  embedding_fn: "sample2prompt"
+log_dir: "outputs/logs"
+T: 29196
+budget: 10

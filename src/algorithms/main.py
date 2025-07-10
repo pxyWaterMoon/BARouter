@@ -37,7 +37,7 @@ def run_system(T, env, agent, logger):
     print(f"System run completed with {T} rounds.")
     return
 
-def build_predictor_models(model_config, key):
+def build_predictor_models(model_config, key, action_space):
     if model_config["type"] == "xgb":
         from src.algorithms.predictor.xgb import XGB
         from src.algorithms.predictor.xgb import XGB
@@ -49,6 +49,21 @@ def build_predictor_models(model_config, key):
         model = God(
             dataset=simuler_dataset,
             key=key,
+        )
+    elif model_config["type"] == "mf":
+        from src.algorithms.predictor.mf import MatrixFactorizationPredictor
+        SFT_dataset = SFTDataset(file_path=model_config["sft_file_path"])
+        model = MatrixFactorizationPredictor(
+            model_list=action_space,
+            key=key,
+            dim=model_config.get("dim", 128),
+            text_dim=model_config.get("text_dim", 768),
+            offline_lr=model_config.get("offline_lr", 0.001),
+            offline_epoch=model_config.get("offline_epoch", 1),
+            online_lr=model_config.get("online_lr", 0.01),
+            buffer_size=model_config.get("buffer_size", 1024),
+            online_decay=model_config.get("online_decay", 0.99),
+            SFT_dataset=SFT_dataset,
         )
     else:
         raise ValueError(f"Unsupported model type: {model_config['type']}")
@@ -75,12 +90,12 @@ def select_embedding_fn(name):
     else:
         raise ValueError(f"Unsupported embbeding function: {name}")
 
-def build_agent(agent_config, B, T, logger):
+def build_agent(agent_config, B, T, logger, action_space):
     # build the predictor models
     if "rmodel" in agent_config.keys():
-        rmodel = build_predictor_models(agent_config["rmodel"], key="reward")
+        rmodel = build_predictor_models(agent_config["rmodel"], key="reward", action_space=action_space)
     if "cmodel" in agent_config.keys():
-        cmodel = build_predictor_models(agent_config["cmodel"], key="cost") # todo: change to cost (this need to change the data processing code)
+        cmodel = build_predictor_models(agent_config["cmodel"], key="cost", action_space=action_space) # todo: change to cost (this need to change the data processing code)
     if agent_config["type"] == "AUPD":
         from src.algorithms.routting_algorithms.AUPD import AUPD
         agent = AUPD(
@@ -113,7 +128,7 @@ def main(config):
     env = build_environment(config["environment"], B, T)
 
     # Build the agent
-    agent = build_agent(config["agent"], B, T, logger)
+    agent = build_agent(config["agent"], B, T, logger, env.action_space)
 
     print(f"The system is constructed successfully!\n")
 

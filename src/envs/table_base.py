@@ -25,6 +25,7 @@ class TabelBasedEnv(BaseEnv):
         super().__init__()
         self.loader = SimulerDataLoader(dataset)
         self.total_budget = budget
+        self.action_space = self.loader.get_action_space()
         self.reset()
 
     def reset(self):

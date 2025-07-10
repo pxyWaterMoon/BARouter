@@ -54,5 +54,13 @@ class SimulerDataLoader:
     def reset(self):
         self.current_index = 0
 
+    def get_action_space(self):
+        if len(self.dataset) == 0:
+            return []
+        first_sample = self.dataset[0]
+        if "available_models_description" in first_sample:
+            return list(first_sample["available_models_description"].keys())
+        return []
+
 
         

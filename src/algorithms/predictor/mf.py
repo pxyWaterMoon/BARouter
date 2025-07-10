@@ -12,6 +12,7 @@ class MatrixFactorization(nn.Module):
                  dim,
                  text_dim,
                  ):
+        super(MatrixFactorization, self).__init__()
         self.model_embed = nn.Embedding(num_models, dim)
         self.text_projection = nn.Linear(text_dim, dim, bias=False)
         self.classifier = nn.Linear(dim, 1, bias=False)  # Assuming binary classification for reward/cost prediction
@@ -33,7 +34,7 @@ class MatrixFactorizationPredictor(BasePredictor):
                  offline_lr=0.001,
                  offline_epoch=1,
                  online_lr=0.01,
-                 batch_size=32,
+                 buffer_size=1024,
                  online_decay=0.99,
                  SFT_dataset=None,
                  device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -44,7 +45,7 @@ class MatrixFactorizationPredictor(BasePredictor):
             text_dim=text_dim    
         ).to(device)
         self.model_list = model_list
-        self.batch_size = batch_size
+        self.buffer_size = buffer_size
         self.lr = online_lr
         self.decay = online_decay
         self.device = device
@@ -53,12 +54,20 @@ class MatrixFactorizationPredictor(BasePredictor):
         if SFT_dataset is not None:
             self.offline_training(SFT_dataset, key=key, lr=offline_lr,epoch=offline_epoch)
         self.buffer = []
+        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=online_lr)
     
-    def sample2input(self, sample):
-         """
-         sample must be a dictionary which contains the prompt_embedding and model_id key
-         """
-         return sample["prompt_embedding"], sample["model_name"], sample[self.key]
+    def sample2input(self, sample_list:list[dict], key = None):
+        if all("prompt_embedding" not in sample for sample in sample_list) or all("model_index" not in sample for sample in sample_list):
+             raise ValueError("The input sample_list must contain 'prompt_embedding' and 'model_index' keys for Matrix Factorization predictor.")
+        x = np.array([sample["prompt_embedding"] for sample in sample_list])
+        a = np.array([sample["model_index"] for sample in sample_list])
+        x = torch.tensor(x, dtype=torch.float32).to(self.device)
+        a = torch.tensor(a, dtype=torch.long).to(self.device)
+        if key is not None:
+            y = np.array([sample[key] for sample in sample_list])
+            y = torch.tensor(y, dtype=torch.float32).to(self.device)
+            return x, a, y
+        return x, a
             
     
     def offline_training(self, dataset:SFTDataset, key:str, lr:float=0.001, epoch=1):
@@ -67,34 +76,48 @@ class MatrixFactorizationPredictor(BasePredictor):
         self.model.train()
         for _ in range(epoch):
             for batch in sft_dataloader:
-                x = torch.tensor([sample["prompt_embedding"] for sample in batch], dtype=torch.float32).to(self.device)
-                a = torch.tensor([self.model_list.index(sample["model_name"]) for sample in batch], dtype=torch.long).to(self.device)
-                y = torch.tensor([sample[key] for sample in batch], dtype=torch.float32).to(self.device)
+                x = torch.tensor(np.array([sample["prompt_embedding"] for sample in batch]), dtype=torch.float32).to(self.device)
+                a = torch.tensor(np.array([self.model_list.index(sample["model_name"]) for sample in batch]), dtype=torch.long).to(self.device)
+                y = torch.tensor(np.array([sample[key] for sample in batch]), dtype=torch.float32).to(self.device)
                 optimizer.zero_grad()
-                prediction = self.model(x, a)
+                prediction = self.model(a, x)
                 loss = self.loss(prediction, y)
                 loss.backward()
                 optimizer.step()
+        print(f"Successfully trained the predictor of {key} with {len(dataset)} samples.")
                 
     def online_update(self, sample):
-        x, a, y = self.sample2input(sample)
-        if len(self.buffer) < self.batch_size:
-           self.buffer.append((x, a, y))
-        else:
-            x_batch, a_batch, y_batch = zip(*self.buffer)
-            x_batch = torch.tensor(x_batch, dtype=torch.float32).to(self.device)
-            a_batch = torch.tensor(a_batch, dtype=torch.long).to(self.device)
-            y_batch = torch.tensor(y_batch, dtype=torch.float32).to(self.device)
+        self.buffer.append(sample)
+        if len(self.buffer) >= self.buffer_size:
+            x, a, y = self.sample2input(self.buffer, key=self.key)
             self.model.train()
-            prediction = self.model(x_batch, a_batch)
-            loss = self.loss(prediction, y_batch)
-            loss.backward(self.lr)
-            self.lr *= self.decay
+            prediction = self.model(a, x)
+            loss = self.loss(prediction, y)
+            self.optimizer.zero_grad()
+            loss.backward()
+            self.optimizer.step()
             self.buffer = []
+
+        # x, a, y = self.sample2input(sample)
+        # if len(self.buffer) < self.batch_size:
+        #    self.buffer.append((x, a, y))
+        # else:
+        #     x_batch, a_batch, y_batch = zip(*self.buffer)
+        #     x_batch = torch.tensor(x_batch, dtype=torch.float32).to(self.device)
+        #     a_batch = torch.tensor(a_batch, dtype=torch.long).to(self.device)
+        #     y_batch = torch.tensor(y_batch, dtype=torch.float32).to(self.device)
+        #     self.model.train()
+        #     prediction = self.model(x_batch, a_batch)
+        #     loss = self.loss(prediction, y_batch)
+        #     self.optimizer.zero_grad()
+        #     loss.backward()
+        #     self.optimizer.step()
+        #     self.buffer = []
     
-    def predict(self, model_id, prompt_embedding):
+    def predict(self, sample_list):
         self.model.eval()
-        return self.model.forward(model_id, prompt_embedding).detach().numpy()
+        x, a = self.sample2input(sample_list)
+        return self.model.forward(a, x).detach().cpu().numpy()
 
 
 
