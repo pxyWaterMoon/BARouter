@@ -24,6 +24,7 @@ class AUPD(OnlineModel):
         self.embedding_fn = embedding_fn
         self.allow_null = allow_null
         self.current_sample = None
+        self.T = T
     
     def take_action(self, sample):
         self.current_sample = sample.copy()
@@ -94,6 +95,8 @@ class AUPD(OnlineModel):
         self.cmodel.online_update(self.current_sample)
         self.current_sample = None
         self.Q = max(self.Q + cost - self.b,0)
+        self.budget -= cost
+        self.b = self.budget / max(self.T - self.t - 1, 1)
         self.logger.log_scalar(
                 {
                     "train/Q": self.Q

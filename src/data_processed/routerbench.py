@@ -9,6 +9,7 @@ import os
 data_path = "./data/rawdata/routerbench/routerbench_0shot.pkl"
 save_path = "./data/processed/all-mpnet-base-v2/routerbench_0shot/"
 model_path = "./models/all-mpnet-base-v2"
+cost_scale = 1.0
 
 # Load raw data
 rawdata = pd.read_pickle(data_path)
@@ -63,7 +64,7 @@ for index in tqdm(range(len(rawdata)), desc="Processing data"):
         gt_per_model = {
             "response": df[model + "|model_response"],
             "reward": df[model],
-            "cost": df[model + "|total_cost"],
+            "cost": df[model + "|total_cost"] * cost_scale,
         }
         gt[model] = gt_per_model
     processed_data = {
@@ -87,10 +88,11 @@ test_dataset = processed_dataset[train_size:]
 if not os.path.exists(save_path):
     os.makedirs(save_path)
 
+
 train_df = pd.DataFrame(train_dataset)
-train_df.to_parquet(os.path.join(save_path, "online.parquet"), engine='pyarrow', index=False)
+train_df.to_parquet(os.path.join(save_path, "online.parquet" if cost_scale == 1.0 else f"online_cost_scale_{cost_scale}.parquet"), engine='pyarrow', index=False)
 test_df = pd.DataFrame(test_dataset)
-test_df.to_parquet(os.path.join(save_path, "offline.parquet"), engine='pyarrow', index=False)
+test_df.to_parquet(os.path.join(save_path, "offline.parquet" if cost_scale == 1.0 else f"offline_cost_scale_{cost_scale}.parquet"), engine='pyarrow', index=False)
 print(f"Processed data saved to {save_path}")
 
 

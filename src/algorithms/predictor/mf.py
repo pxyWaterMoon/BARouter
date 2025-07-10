@@ -11,16 +11,24 @@ class MatrixFactorization(nn.Module):
                  num_models,
                  dim,
                  text_dim,
+                 key,
                  ):
         super(MatrixFactorization, self).__init__()
         self.model_embed = nn.Embedding(num_models, dim)
         self.text_projection = nn.Linear(text_dim, dim, bias=False)
         self.classifier = nn.Linear(dim, 1, bias=False)  # Assuming binary classification for reward/cost prediction
-        
+        self.key = key
+
     def forward(self, model_id, prompt_embedding):
         model_embedding = self.model_embed(model_id)
         text_embedding = self.text_projection(prompt_embedding)
         prediction = self.classifier(model_embedding * text_embedding)
+        if self.key == "reward":
+            return torch.sigmoid(prediction).squeeze()
+        elif self.key == "cost":
+            return torch.relu(prediction).squeeze()
+        else:
+            raise ValueError("The key must be either 'reward' or 'cost'.")
         return prediction.squeeze()
         
         
@@ -34,7 +42,7 @@ class MatrixFactorizationPredictor(BasePredictor):
                  offline_lr=0.001,
                  offline_epoch=1,
                  online_lr=0.01,
-                 buffer_size=1024,
+                 buffer_size=512,
                  online_decay=0.99,
                  SFT_dataset=None,
                  device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -42,7 +50,8 @@ class MatrixFactorizationPredictor(BasePredictor):
         self.model = MatrixFactorization(
             num_models=len(model_list),
             dim=dim,
-            text_dim=text_dim    
+            text_dim=text_dim,
+            key=key
         ).to(device)
         self.model_list = model_list
         self.buffer_size = buffer_size
@@ -84,7 +93,7 @@ class MatrixFactorizationPredictor(BasePredictor):
                 loss = self.loss(prediction, y)
                 loss.backward()
                 optimizer.step()
-        print(f"Successfully trained the predictor of {key} with {len(dataset)} samples.")
+        print(f"Successfully trained the predictor of {key}.")
                 
     def online_update(self, sample):
         self.buffer.append(sample)
