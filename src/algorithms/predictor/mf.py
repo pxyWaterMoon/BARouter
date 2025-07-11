@@ -30,8 +30,7 @@ class MatrixFactorization(nn.Module):
         else:
             raise ValueError("The key must be either 'reward' or 'cost'.")
         return prediction.squeeze()
-        
-        
+
 class MatrixFactorizationPredictor(BasePredictor):
     
     def __init__(self,
@@ -39,7 +38,7 @@ class MatrixFactorizationPredictor(BasePredictor):
                  key,
                  dim=128,
                  text_dim=768,
-                 offline_lr=0.001,
+                 offline_lr=0.01,
                  offline_epoch=1,
                  online_lr=0.01,
                  buffer_size=512,
@@ -128,8 +127,3 @@ class MatrixFactorizationPredictor(BasePredictor):
         x, a = self.sample2input(sample_list)
         return self.model.forward(a, x).detach().cpu().numpy()
 
-
-
-if __name__=="__main__":
-    model = XGB()
-    model.predict(np.zeros((11,768+768)))

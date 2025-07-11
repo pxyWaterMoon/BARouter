@@ -14,7 +14,7 @@ class Logger:
 
     _instance: ClassVar[Logger] = None  # singleton pattern
     writer: tensorboard.SummaryWriter
-    history: dict = {}
+    history: list= []
     log_dir: str | os.PathLike | None
 
     def __new__(
@@ -47,22 +47,31 @@ class Logger:
             self.writer.add_scalar(key, value, step)
 
 
-    def log_signal(self, prompts, actions, rewards, costs, step):
-        if "prompts" not in self.history.keys():
-            self.history["prompts"] = []
-        if "actions" not in self.history.keys():
-            self.history["actions"] = []
-        if "rewards" not in self.history.keys():
-            self.history["rewards"] = []
-        if "costs" not in self.history.keys():
-            self.history["costs"] = []
-        if "global_step" not in self.history.keys():
-            self.history["global_step"] = []
-        self.history["prompts"].append(prompts)
-        self.history["actions"].append(actions)
-        self.history["rewards"].append(rewards)
-        self.history["costs"].append(costs)
-        self.history["global_step"].append(step)
+    def log_signal(self, sample, step):
+        log_sample = {
+            "prompt:" : sample["prompt"],
+            "model_name": sample["model_name"],
+            "response": sample["response"],
+            "reward": sample["reward"],
+            "cost": sample["cost"],
+            "global_step": step,
+        }
+        self.history.append(log_sample)
+        # if "prompts" not in self.history.keys():
+        #     self.history["prompts"] = []
+        # if "actions" not in self.history.keys():
+        #     self.history["actions"] = []
+        # if "rewards" not in self.history.keys():
+        #     self.history["rewards"] = []
+        # if "costs" not in self.history.keys():
+        #     self.history["costs"] = []
+        # if "global_step" not in self.history.keys():
+        #     self.history["global_step"] = []
+        # self.history["prompts"].append(prompts)
+        # self.history["actions"].append(actions)
+        # self.history["rewards"].append(rewards)
+        # self.history["costs"].append(costs)
+        # self.history["global_step"].append(step)
     
     def get_log_value(self, key: str, step: range | int) -> Any:
         """
@@ -75,14 +84,11 @@ class Logger:
         Returns:
             Any: The logged value or None if not found.
         """
-        if key not in self.history:
-            raise KeyError(f"Key '{key}' not found in history.")
-        log_value = self.history[key]
         
         if isinstance(step, range):
-            values = [log_value[s] for s in step]
+            values = [self.history[s][key] for s in step]
         elif isinstance(step, int):
-            values = log_value[step]
+            values = self.history[step][key]
         else:
             raise TypeError("Step must be an integer or a range.")
         return sum(values) / len(values)
@@ -114,7 +120,8 @@ class Logger:
         
         # 统计每种action的数量
         action_counts = {}
-        for action in self.history["actions"]:
+        for sample in self.history:
+            action = sample["model_name"]
             if action not in action_counts:
                 action_counts[action] = 0
             action_counts[action] += 1

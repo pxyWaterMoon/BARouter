@@ -21,14 +21,14 @@ def run_system(T, env, agent, logger):
                 cost = 0
             else:
                 response, reward, cost = env.feedback(sample, action)
-            agent.update(reward, cost)
-            logger.log_signal(sample["prompt"], action, reward, cost, t)
+            log_sample = agent.update(reward, cost, response)
+            logger.log_signal(log_sample, t)
             logger.log_scalar(
                 {
                     "train/current_reward": reward,
                     "train/current_cost": cost,
-                    "train/average_reward": logger.get_log_value("rewards", range(t+1)),
-                    "train/average_cost": logger.get_log_value("costs", range(t+1)),
+                    "train/average_reward": logger.get_log_value("reward", range(t+1)),
+                    "train/average_cost": logger.get_log_value("cost", range(t+1)),
                     "train/budget": env.current_budget,
                 },
                 step=t,

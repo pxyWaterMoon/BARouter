@@ -86,11 +86,13 @@ class AUPD(OnlineModel):
         )
         return action
     
-    def update(self, reward, cost):
+    def update(self, reward, cost, response):
         # self.r_buffer.append(reward)
         # self.c_buffer.append(cost)
         self.current_sample["reward"] = reward
         self.current_sample["cost"] = cost
+        ret_sample = self.current_sample.copy()
+        ret_sample["response"] = response
         self.rmodel.online_update(self.current_sample)
         self.cmodel.online_update(self.current_sample)
         self.current_sample = None
@@ -104,3 +106,4 @@ class AUPD(OnlineModel):
                 step=self.t,
             )
         self.t += 1
+        return ret_sample
