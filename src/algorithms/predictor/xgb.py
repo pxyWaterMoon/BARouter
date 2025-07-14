@@ -9,13 +9,14 @@ def split(data:list, rate) ->tuple[list,list]:
     return data[:n],data[n:]
 
 class XGB(BasePredictor):
-    def __init__(self, key, SFT_dataset=None, buffer_size=1024):
-        self.model = XGBRegressor(max_depth=4)
+    def __init__(self, key, SFT_dataset=None, buffer_size=1024, offline = False):
+        self.model = XGBRegressor(max_depth=4,learning_rate=0.01)
         self.key = key
-        if SFT_dataset is not None:
-            self.offline_training(SFT_dataset, key=key)
+        self.offline = offline
         self.buffer = []
         self.buffer_size = buffer_size
+        if SFT_dataset is not None:
+            self.offline_training(SFT_dataset, key=key)
     
     # def get_data(self, file_name:str, key:str):
     #     df = pd.read_parquet(file_name)
@@ -56,6 +57,10 @@ class XGB(BasePredictor):
         # X, y = embedding_batch(dataset, key=key)
         X = np.array(X)
         y = np.array(y)
+        if not self.offline:
+            X = X[:10]
+            y = y[:10]
+            print("online!")
         self.model.fit(X,y)
         print(f"Successfully trained the predictor of {key}.")
 

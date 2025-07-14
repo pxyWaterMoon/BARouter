@@ -42,7 +42,7 @@ def build_predictor_models(model_config, key, action_space):
         from src.algorithms.predictor.xgb import XGB
         from src.algorithms.predictor.xgb import XGB
         SFT_dataset = SFTDataset(file_path=model_config["sft_file_path"])
-        model = XGB(SFT_dataset=SFT_dataset, key=key)
+        model = XGB(SFT_dataset=SFT_dataset, key=key, offline= model_config["offline"])
     elif model_config["type"] == "god":
         from src.algorithms.predictor.god import God
         simuler_dataset = SimulerDataset(file_path=model_config["file_path"])
@@ -53,6 +53,9 @@ def build_predictor_models(model_config, key, action_space):
     elif model_config["type"] == "mf":
         from src.algorithms.predictor.mf import MatrixFactorizationPredictor
         SFT_dataset = SFTDataset(file_path=model_config["sft_file_path"])
+        if not model_config["offline"]:
+            print("Online!!")
+            SFT_dataset = None
         model = MatrixFactorizationPredictor(
             model_list=action_space,
             key=key,
