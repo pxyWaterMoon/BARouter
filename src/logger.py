@@ -51,7 +51,7 @@ class Logger:
         log_sample = {
             "prompt" : sample["prompt"],
             "model_name": sample["model_name"],
-            "model_index": sample["model_index"],
+            "model_index": int(sample["model_index"]),
             "response": sample["response"],
             "reward": sample["reward"],
             "cost": sample["cost"],

@@ -99,9 +99,9 @@ class MatrixFactorizationPredictor(BasePredictor):
         if len(self.buffer) >= self.buffer_size:
             x, a, y = self.sample2input(self.buffer, key=self.key)
             self.model.train()
+            self.optimizer.zero_grad()
             prediction = self.model(a, x)
             loss = self.loss(prediction, y)
-            self.optimizer.zero_grad()
             loss.backward()
             self.optimizer.step()
             self.buffer = []

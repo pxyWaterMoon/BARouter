@@ -59,6 +59,9 @@ class AUPD(OnlineModel):
         #     predict_cost:np.ndarray = self.cmodel.predict(cmodel_input_x, cmodel_input_a) # (K)
         # print(predict_cost.shape)
         weight = predict_reward - (self.Q/self.V)*predict_cost # (K)
+        self.current_sample["weight"] = weight.tolist()
+        self.current_sample["all_predict_reward"] = predict_reward.tolist()
+        self.current_sample["all_predict_cost"] = predict_cost.tolist()
         ########## Null action ##########
         if np.max(weight) < 0 and self.allow_null:
             self.logger.log_scalar(
