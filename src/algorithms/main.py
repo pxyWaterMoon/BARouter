@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import os
 from src.algorithms.routting_algorithms.AUPD import AUPD
+from src.algorithms.routting_algorithms.AUPD_exp import AUPD_exp
 from src.logger import Logger
 from tqdm import tqdm
 
@@ -102,6 +103,19 @@ def build_agent(agent_config, B, T, logger, action_space):
     if agent_config["type"] == "AUPD":
         from src.algorithms.routting_algorithms.AUPD import AUPD
         agent = AUPD(
+            rmodel=rmodel,
+            cmodel=cmodel,
+            logger=logger,
+            T=T,
+            budget=B,
+            embedding_fn=select_embedding_fn(agent_config["embedding_fn"]),  # Function to embed the sample
+            buffer_size=agent_config.get("buffer_size", 1024),
+            v_scale=agent_config["v_scale"],
+            allow_null=agent_config["allow_null"]
+        )
+    elif agent_config["type"] == "AUPD_exp":
+        from src.algorithms.routting_algorithms.AUPD_exp import AUPD_exp
+        agent = AUPD_exp(
             rmodel=rmodel,
             cmodel=cmodel,
             logger=logger,
