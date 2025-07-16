@@ -49,11 +49,15 @@ class Logger:
 
     def log_signal(self, sample, step):
         log_sample = {
-            "prompt:" : sample["prompt"],
+            "prompt" : sample["prompt"],
             "model_name": sample["model_name"],
+            "model_index": sample["model_index"],
             "response": sample["response"],
             "reward": sample["reward"],
             "cost": sample["cost"],
+            "weight": sample["weight"],
+            "all_predict_reward": sample["all_predict_reward"],
+            "all_predict_cost": sample["all_predict_cost"],
             "global_step": step,
         }
         self.history.append(log_sample)

@@ -4,7 +4,7 @@ from src.logger import Logger
 import numpy as np
 
 class AUPD_exp(OnlineModel):
-    def __init__(self, rmodel:XGB, cmodel:XGB, logger:Logger, T, budget, embedding_fn, buffer_size = 1024, v_scale = 1.0, allow_null = False, eta = 50):
+    def __init__(self, rmodel:XGB, cmodel:XGB, logger:Logger, T, budget, embedding_fn, buffer_size = 1024, v_scale = 1.0, allow_null = False, eta = 30):
         self.budget = budget
         self.rmodel = rmodel
         self.cmodel = cmodel
@@ -58,7 +58,9 @@ class AUPD_exp(OnlineModel):
         #     predict_cost:np.ndarray = self.cmodel.predict(cmodel_input_x, cmodel_input_a) # (K)
         # print(predict_cost.shape)
         weight = predict_reward - (self.Q/self.V)*predict_cost # (K)
-
+        self.current_sample["weight"] = weight.tolist()
+        self.current_sample["all_predict_reward"] = predict_reward.tolist()
+        self.current_sample["all_predict_cost"] = predict_cost.tolist()
         ########## Null action ##########
         if np.max(weight) < 0 and self.allow_null:
             self.logger.log_scalar(
@@ -71,8 +73,9 @@ class AUPD_exp(OnlineModel):
             return "None"
         ########## Null action ##########
         weight *= self.eta
-        delta = max(np.max(weight) - 20 , 0)
+        delta = np.max(weight) - 10
         weight -= delta
+        # print(weight)
         weight = np.exp(weight)
         weight = weight / np.sum(weight)
         action_index = np.random.choice(len(weight),p=weight)
@@ -84,6 +87,7 @@ class AUPD_exp(OnlineModel):
         self.current_sample["model_description_embedding"] = sample["available_models_description_embeddings"][action]
         self.current_sample["predict_reward"] = predict_reward[action_index]
         self.current_sample["predict_cost"] = predict_cost[action_index]
+        
         self.logger.log_scalar(
             {
                 "train/predict_reward": predict_reward[action_index],

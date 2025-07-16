@@ -8,10 +8,10 @@ agent:
   allow_null : False
   rmodel:
     type: "mf"
-    sft_file_path: "data/processed/all-mpnet-base-v2/routerbench_0shot/offline.parquet"
+    sft_file_path: None
   cmodel:
     type: "mf"
-    sft_file_path: "data/processed/all-mpnet-base-v2/routerbench_0shot/offline.parquet"
+    sft_file_path: None
   embedding_fn: "sample2prompt"
 log_dir: "outputs/logs"
 T: 29196

@@ -26,18 +26,6 @@ class AUPD(OnlineModel):
         self.current_sample = None
         self.T = T
 
-        ## optimistic ##
-        self.action_count = np.zeros(11)
-    
-    def ucb(self, value):
-        s = np.log(self.T)
-        p = np.maximum(self.action_count, np.ones(11))
-        return value + 1e-3*np.sqrt(s/p)
-    
-    def lcb(self, value):
-        s = np.log(self.T)
-        p = np.maximum(self.action_count, np.ones(11))
-        return value - 1e-3*np.sqrt(s/p)
 
     def take_action(self, sample):
         self.current_sample = sample.copy()
@@ -53,10 +41,6 @@ class AUPD(OnlineModel):
         predict_reward = self.rmodel.predict(sample_list)
         predict_cost = self.cmodel.predict(sample_list)
 
-        ########## optimistic ##########
-        predict_reward = self.ucb(predict_reward)
-        predict_cost = self.lcb(predict_cost)
-        ########## optimistic ##########
 
         # cmodel_input = self.embedding_fn(sample, concatenate=self.cmodel.concatenate)
         # # print(X.shape)
@@ -88,10 +72,6 @@ class AUPD(OnlineModel):
         ########## Null action ##########
 
         action_index = np.argmax(weight)
-
-        ########## optimistic ##########
-        self.action_count[action_index] += 1
-        ########## optimistic ##########
 
         action = action_space[action_index]
         self.current_sample["model_index"] = action_index

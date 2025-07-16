@@ -53,10 +53,11 @@ def build_predictor_models(model_config, key, action_space):
         )
     elif model_config["type"] == "mf":
         from src.algorithms.predictor.mf import MatrixFactorizationPredictor
-        SFT_dataset = SFTDataset(file_path=model_config["sft_file_path"])
-        if not model_config["offline"]:
-            print("Online!!")
-            SFT_dataset = None
+        
+        SFT_dataset = None if model_config["sft_file_path"] == "None" else SFTDataset(file_path=model_config["sft_file_path"])
+        # if not model_config["offline"]:
+        #     print("Online!!")
+        #     SFT_dataset = None
         model = MatrixFactorizationPredictor(
             model_list=action_space,
             key=key,
