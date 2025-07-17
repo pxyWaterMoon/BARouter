@@ -16,7 +16,7 @@ class God(BasePredictor):
     def offline_training(self, dataset, key:str):
         pass
 
-    def online_update(self, X, y):
+    def online_update(self, X, y, global_step):
         return
     
     def predict(self, prompts, actions):

@@ -64,7 +64,7 @@ class XGB(BasePredictor):
         self.model.fit(X,y)
         print(f"Successfully trained the predictor of {key}.")
 
-    def online_update(self, sample):
+    def online_update(self, sample, global_step):
         self.buffer.append(sample)
         if len(self.buffer) >= self.buffer_size:
             self.buffer.append(sample)

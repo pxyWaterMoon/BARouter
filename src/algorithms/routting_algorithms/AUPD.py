@@ -99,8 +99,8 @@ class AUPD(OnlineModel):
         self.current_sample["cost"] = cost
         ret_sample = self.current_sample.copy()
         ret_sample["response"] = response
-        self.rmodel.online_update(self.current_sample)
-        self.cmodel.online_update(self.current_sample)
+        self.rmodel.online_update(self.current_sample, self.t)
+        self.cmodel.online_update(self.current_sample, self.t)
         self.current_sample = None
         self.Q = max(self.Q + cost - self.b,0)
         self.budget -= cost

@@ -6,7 +6,7 @@ class BasePredictor():
     def offline_training(self, dataset, key:str):
         raise NotImplementedError
 
-    def online_update(self, X, y):
+    def online_update(self, X, y, global_step):
         raise NotImplementedError
 
     def predict(self, prompt):

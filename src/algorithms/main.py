@@ -38,7 +38,7 @@ def run_system(T, env, agent, logger):
     print(f"System run completed with {T} rounds.")
     return
 
-def build_predictor_models(model_config, key, action_space):
+def build_predictor_models(model_config, key, action_space, logger):
     if model_config["type"] == "xgb":
         from src.algorithms.predictor.xgb import XGB
         from src.algorithms.predictor.xgb import XGB
@@ -69,6 +69,7 @@ def build_predictor_models(model_config, key, action_space):
             buffer_size=model_config.get("buffer_size", 1024),
             online_decay=model_config.get("online_decay", 0.99),
             SFT_dataset=SFT_dataset,
+            logger=logger,
         )
     else:
         raise ValueError(f"Unsupported model type: {model_config['type']}")
@@ -98,9 +99,9 @@ def select_embedding_fn(name):
 def build_agent(agent_config, B, T, logger, action_space):
     # build the predictor models
     if "rmodel" in agent_config.keys():
-        rmodel = build_predictor_models(agent_config["rmodel"], key="reward", action_space=action_space)
+        rmodel = build_predictor_models(agent_config["rmodel"], key="reward", action_space=action_space, logger=logger)
     if "cmodel" in agent_config.keys():
-        cmodel = build_predictor_models(agent_config["cmodel"], key="cost", action_space=action_space) # todo: change to cost (this need to change the data processing code)
+        cmodel = build_predictor_models(agent_config["cmodel"], key="cost", action_space=action_space, logger=logger)
     if agent_config["type"] == "AUPD":
         from src.algorithms.routting_algorithms.AUPD import AUPD
         agent = AUPD(
