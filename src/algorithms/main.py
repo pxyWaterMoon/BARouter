@@ -128,6 +128,12 @@ def build_agent(agent_config, B, T, logger, action_space):
             v_scale=agent_config["v_scale"],
             allow_null=agent_config["allow_null"]
         )
+    elif agent_config["type"] == "FixAction":
+        from src.algorithms.routting_algorithms.fix_action import FixAction
+        if "action" not in agent_config.keys():
+            raise ValueError("FixAction agent requires an 'action' key in the configuration.")
+        action = agent_config["action"]
+        agent = FixAction(action=action, T=T, logger=logger)
     else:
         raise ValueError(f"Unsupported agent type: {agent_config['type']}")
     return agent

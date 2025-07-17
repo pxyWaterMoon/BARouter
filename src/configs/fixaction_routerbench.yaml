@@ -1,0 +1,10 @@
+project_name: "fixaction_routerbench_b=5_vs=1e-1"
+environment:
+  type: "table"
+  file_path: "data/processed/all-mpnet-base-v2/routerbench_0shot/online.parquet"
+agent:
+  type: "FixAction"
+  action: "gpt-4-1106-preview"
+log_dir: "outputs/logs"
+T: 29196
+budget: 5

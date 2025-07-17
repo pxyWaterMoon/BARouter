@@ -55,11 +55,14 @@ class Logger:
             "response": sample["response"],
             "reward": sample["reward"],
             "cost": sample["cost"],
-            "weight": sample["weight"],
-            "all_predict_reward": sample["all_predict_reward"],
-            "all_predict_cost": sample["all_predict_cost"],
             "global_step": step,
         }
+        if "weight" in sample:
+            log_sample["weight"] = sample["weight"].tolist()
+        if "all_predict_reward" in sample:
+            log_sample["all_predict_reward"] = sample["all_predict_reward"].tolist()
+        if "all_predict_cost" in sample:
+            log_sample["all_predict_cost"] = sample["all_predict_cost"].tolist()
         self.history.append(log_sample)
         # if "prompts" not in self.history.keys():
         #     self.history["prompts"] = []
