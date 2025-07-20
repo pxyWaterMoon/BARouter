@@ -20,8 +20,9 @@ class PromptOnlyDataset(Dataset):
         return len(self.data)
     
     def __getitem__(self, index) -> Any:
-        sample = self.data[index]["question"]
-        gt = self.data[index]["answer"] if self.with_gt else None
+        row = self.data.iloc[index]
+        sample = row["question"]
+        gt = row["answer"] if self.with_gt else None
         return sample, gt          
 
 # class PromptOnlyDataLoader:
@@ -61,12 +62,11 @@ class PromptOnlyDataLoader:
             raise StopIteration("No more samples available.")
         index = self.indices[self.current_index]
         sample, gt = self.dataset[index]
-        if self.embed:
-            sample_embedding = self.embed_fn(sample)
+        sample_embedding = self.embed_fn(sample) if self.embed_fn else None
         self.current_index += 1
         return PromptOnlySample(
             prompt=sample,
-            prompt_embedding=sample_embedding if self.embed else None,
+            prompt_embedding=sample_embedding,
             available_models_description=None,
             available_models_description_embeddings=None
         ), gt

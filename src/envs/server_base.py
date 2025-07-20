@@ -18,25 +18,25 @@ class ServerBasedEnv(BaseEnv):
         self.moldel_costs = {model_name: model_info[model_name]["cost_per_token"] for model_name in self.action_space}
         self.model_description = {model_name: model_info[model_name]["description"] for model_name in self.action_space}
         self.embed_fn = embed_fn
-        if self.embed_fn is not None:
-            self.model_description_embeddings = {
-                model_name: self.embed_fn(model_info[model_name]["description"])
-                for model_name in self.action_space
-            }
+        self.model_description_embeddings = {
+            model_name: self.embed_fn(model_info[model_name]["description"])
+            for model_name in self.action_space
+        } if embed_fn else None
         self.reset()
 
     def reset(self):
         self.current_sample = None
+        self.current_gt = None
         self.current_budget = self.total_budget
         self.loader.reset()
         
     def get_sample(self):
-        self.current_sample = self.loader.get_sample()
+        self.current_sample, self.current_gt = self.loader.get_sample()
         return PromptOnlySample(
             prompt=self.current_sample["prompt"],
             prompt_embedding=self.current_sample["prompt_embedding"],
             available_models_description=self.model_description,
-            available_models_description_embeddings=self.model_description_embeddings if self.embed else None
+            available_models_description_embeddings=self.model_description_embeddings
         )
         
     def feedback(self, sample, action):
@@ -45,7 +45,10 @@ class ServerBasedEnv(BaseEnv):
         if self.current_budget <= 0:
             return None, 0, 0
         output = self.model_clients[action].chat.completions.create(
-            prompt=sample["prompt"],
+            model=action,
+            messages=[
+                {"role": "user", "content": sample["prompt"]}
+            ],
         )
         response = output.choices[0].message.content
         cost = output.usage.total_tokens * self.moldel_costs[action]
