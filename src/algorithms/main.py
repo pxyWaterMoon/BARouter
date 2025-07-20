@@ -168,7 +168,6 @@ def main(config):
     agent = build_agent(config["agent"], B, T, logger, env.action_space)
 
     print(f"The system is constructed successfully!\n")
-    exit(0)
 
     # Run the system
     run_system(config["T"], env, agent, logger)
