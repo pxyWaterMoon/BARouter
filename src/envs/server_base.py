@@ -1,12 +1,12 @@
 from src.envs.base_env import BaseEnv
-from src.datasets.simulerdata import SimulerDataLoader
+from src.datasets.prompt_only import PromptOnlyDataLoader
 from src.datasets.prompt_only import PromptOnlySample
 from openai import OpenAI
 
 class ServerBasedEnv(BaseEnv):
-    def __init__(self, dataset, budget, model_info):
+    def __init__(self, dataset, budget, model_info, embed_fn=None):
         super().__init__()
-        self.loader = SimulerDataLoader(dataset)
+        self.loader = PromptOnlyDataLoader(dataset, embed_fn=embed_fn)
         self.total_budget = budget
         self.action_space = list(model_info.keys())
         self.model_clients = {}
@@ -16,6 +16,13 @@ class ServerBasedEnv(BaseEnv):
                 base_url=model_info[model_name]["base_url"],
             )
         self.moldel_costs = {model_name: model_info[model_name]["cost_per_token"] for model_name in self.action_space}
+        self.model_description = {model_name: model_info[model_name]["description"] for model_name in self.action_space}
+        self.embed_fn = embed_fn
+        if self.embed_fn is not None:
+            self.model_description_embeddings = {
+                model_name: self.embed_fn(model_info[model_name]["description"])
+                for model_name in self.action_space
+            }
         self.reset()
 
     def reset(self):
@@ -28,8 +35,8 @@ class ServerBasedEnv(BaseEnv):
         return PromptOnlySample(
             prompt=self.current_sample["prompt"],
             prompt_embedding=self.current_sample["prompt_embedding"],
-            available_models_description=self.current_sample["available_models_description"],
-            available_models_description_embeddings=self.current_sample["available_models_description_embeddings"]
+            available_models_description=self.model_description,
+            available_models_description_embeddings=self.model_description_embeddings if self.embed else None
         )
         
     def feedback(self, sample, action):

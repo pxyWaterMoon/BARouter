@@ -41,7 +41,7 @@ class MatrixFactorizationPredictor(BasePredictor):
                  offline_lr=0.01,
                  offline_epoch=1,
                  online_lr=0.01,
-                 buffer_size=512,
+                 buffer_size=64,
                  online_decay=0.99,
                  SFT_dataset=None,
                  device=torch.device('cuda' if torch.cuda.is_available() else 'cpu'),

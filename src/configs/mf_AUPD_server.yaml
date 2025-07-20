@@ -1,0 +1,32 @@
+project_name: "mf_AUPD_server_gsm8k"
+environment:
+  type: "server"
+  data_path: "data/rawdata/gsm8k/main/test-00000-of-00001.parquet"
+  embedder:
+    type: "SentenceTransformerEmbedder"
+    model_path: "models/all-mpnet-base-v2"
+  model_info: 
+    Qwen2.5-Math-7B:
+      api_key: "EMPTY"
+      base_url: "http://localhost:1157/v1"
+      description: "A math model based on Qwen2.5-7B"
+      cost_per_token: 1
+    Qwen2.5-0.5B-Instruct:
+      api_key: "EMPTY"
+      base_url: "http://localhost:1158/v1"
+      description: "A cost effective model"
+      cost_per_token: 0.5
+agent:
+  type: "AUPD"
+  v_scale : 0.1
+  allow_null : False
+  rmodel:
+    type: "mf"
+    sft_file_path: None
+  cmodel:
+    type: "mf"
+    sft_file_path: None
+  embedding_fn: "sample2prompt"
+log_dir: "outputs/logs"
+T: 50
+budget: 10 

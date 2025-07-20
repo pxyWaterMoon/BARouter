@@ -80,10 +80,22 @@ def build_environment(env_config, budget, T):
         from src.envs.table_base import TabelBasedEnv
         simuler_dataset = SimulerDataset(file_path=env_config["file_path"])
         env_model = TabelBasedEnv(simuler_dataset, budget=budget)
-        if env_model.support_length() < T:
-            raise ValueError(f"The number of round table environment can support is {env_model.support_length()}, which is less than T={T}.")
+    elif env_config["type"] == "server":
+        from src.envs.server_base import ServerBasedEnv
+        dataset = PromptOnlyDataset(file_path=env_config["data_path"])
+        embedder_config = env_config.get("embedder", None)
+        embedder=None
+        if embedder_config is not None:
+            if embedder_config["type"] == "SentenceTransformerEmbedder":
+                 from src.embed import SentenceTransformerEmbedder
+                 embedder = SentenceTransformerEmbedder(embedder_config["model_path"])
+            else:
+                raise ValueError(f"Unsupported text embedding type: {embedder_config['type']}")
+        env_model = ServerBasedEnv(dataset, budget, env_config["model_info"], embedder.embed)
     else:
         raise ValueError(f"Unsupported environment type: {env_config['type']}")
+    if env_model.support_length() < T:
+        raise ValueError(f"The number of round table environment can support is {env_model.support_length()}, which is less than T={T}.")
     return env_model
 
 def select_embedding_fn(name):
@@ -156,6 +168,7 @@ def main(config):
     agent = build_agent(config["agent"], B, T, logger, env.action_space)
 
     print(f"The system is constructed successfully!\n")
+    exit(0)
 
     # Run the system
     run_system(config["T"], env, agent, logger)

@@ -8,49 +8,21 @@ from typing import Any
 class PromptOnlySample(TypedDict, total=False):
     prompt: NotRequired[str]
     prompt_embedding: NotRequired[list[float]]|None
-    available_models_description: NotRequired[dict[str, str]]
+    available_models_description: NotRequired[dict[str, str]]|None
     available_models_description_embeddings: NotRequired[dict[str, list[float]]]|None
 
 class PromptOnlyDataset(Dataset):
-    def __init__(self, *args) -> None:
-        super().__init__()
-        if len(args) == 1:
-            # init with a SimulerDataset
-            source_data = args[0]
-            self.prompts = []
-            self.prompts_embedding = []
-            self.available_models_description = []
-            self.available_models_description_embeddings = []
-            for data in source_data:
-                self.prompts.append(data["prompt"])
-                self.prompts_embedding.append(data["prompt_embedding"])
-                self.available_models_description.append(data["available_models_description"])
-                self.available_models_description_embeddings.append(
-                    data["available_models_description_embeddings"]
-                )
-            
-        elif len(args) == 3:
-            self.prompts = args[0]
-            self.available_models_description = args[1]
-            # self.embedding_path = args[2]
-            self.prompts_embedding, self.available_models_description_embeddings = self.model_embed(args[2])
-        
+    def __init__(self, file_path, with_gt=False) -> None:
+        self.data = pd.read_parquet(file_path)
+        self.with_gt = with_gt
     
     def __len__(self):
-        return len(self.prompts)
+        return len(self.data)
     
     def __getitem__(self, index) -> Any:
-        sample: PromptOnlySample = {
-            "prompt": self.prompts[index],
-            "prompt_embedding": self.prompts_embedding[index],
-            "available_models_description": self.available_models_description[index],
-            "available_models_description_embeddings": self.available_models_description_embeddings[index],
-        }
-        return sample
-
-
-    def model_embed(self, embed_path):
-        raise NotImplementedError
+        sample = self.data[index]["question"]
+        gt = self.data[index]["answer"] if self.with_gt else None
+        return sample, gt          
 
 # class PromptOnlyDataLoader:
 #     def __init__(self, dataset: PromptOnlyDataset, batch_size: int = 1, shuffle: bool = True):
@@ -71,17 +43,34 @@ class PromptOnlyDataset(Dataset):
 #         return (len(self.dataset) + self.batch_size - 1) // self.batch_size
     
 class PromptOnlyDataLoader:
-    def __init__(self, dataset: PromptOnlyDataset, shuffle: bool = True):
+    def __init__(self, dataset: PromptOnlyDataset, shuffle: bool = True, embed_fn=None):
         self.dataset = dataset
         self.shuffle = shuffle
         self.indices = list(range(len(dataset)))
         if self.shuffle:
             import random
             random.shuffle(self.indices)
-        
-    def __iter__(self):
-        for index in self.indices:
-            return self.dataset[index]
+        self.embed_fn = embed_fn
+        self.current_index = 0
         
     def __len__(self):
         return len(self.dataset)
+    
+    def get_sample(self):
+        if self.current_index >= len(self.indices):
+            raise StopIteration("No more samples available.")
+        index = self.indices[self.current_index]
+        sample, gt = self.dataset[index]
+        if self.embed:
+            sample_embedding = self.embed_fn(sample)
+        self.current_index += 1
+        return PromptOnlySample(
+            prompt=sample,
+            prompt_embedding=sample_embedding if self.embed else None,
+            available_models_description=None,
+            available_models_description_embeddings=None
+        ), gt
+    
+    def reset(self):
+        self.current_index = 0
+        
