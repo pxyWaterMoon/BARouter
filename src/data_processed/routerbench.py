@@ -9,7 +9,7 @@ import os
 data_path = "./data/rawdata/routerbench/routerbench_0shot.pkl"
 save_path = "./data/processed/all-mpnet-base-v2/routerbench_0shot/"
 model_path = "./models/all-mpnet-base-v2"
-cost_scale = 1.0
+cost_scale = 1000
 
 # Load raw data
 rawdata = pd.read_pickle(data_path)

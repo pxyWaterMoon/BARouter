@@ -142,7 +142,8 @@ def build_agent(agent_config, B, T, logger, action_space):
             embedding_fn=select_embedding_fn(agent_config["embedding_fn"]),  # Function to embed the sample
             buffer_size=agent_config.get("buffer_size", 1024),
             v_scale=agent_config["v_scale"],
-            allow_null=agent_config["allow_null"]
+            allow_null=agent_config["allow_null"],
+            eta=agent_config["eta"] if "eta" in agent_config else 30
         )
     elif agent_config["type"] == "FixAction":
         from src.algorithms.routting_algorithms.fix_action import FixAction
