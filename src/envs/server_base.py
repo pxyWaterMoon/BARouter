@@ -4,7 +4,7 @@ from src.datasets.prompt_only import PromptOnlySample
 from openai import OpenAI
 
 class ServerBasedEnv(BaseEnv):
-    def __init__(self, dataset, budget, model_info, embed_fn=None):
+    def __init__(self, dataset, budget, model_info, embed_fn=None, reward_fn=None):
         super().__init__()
         self.loader = PromptOnlyDataLoader(dataset, embed_fn=embed_fn)
         self.total_budget = budget
@@ -22,6 +22,7 @@ class ServerBasedEnv(BaseEnv):
             model_name: self.embed_fn(model_info[model_name]["description"])
             for model_name in self.action_space
         } if embed_fn else None
+        self.reward_fn = reward_fn
         self.reset()
 
     def reset(self):
@@ -31,7 +32,7 @@ class ServerBasedEnv(BaseEnv):
         self.loader.reset()
         
     def get_sample(self):
-        self.current_sample, self.current_gt = self.loader.get_sample()
+        self.current_sample = self.loader.get_sample()
         return PromptOnlySample(
             prompt=self.current_sample["prompt"],
             prompt_embedding=self.current_sample["prompt_embedding"],
@@ -51,8 +52,9 @@ class ServerBasedEnv(BaseEnv):
             ],
         )
         response = output.choices[0].message.content
+        self.current_sample["response"] = response
         cost = output.usage.total_tokens * self.moldel_costs[action]
-        reward = 1 # todo: Implement a proper reward function based on the response
+        reward = self.reward_fn(self.current_sample) if self.reward_fn else 0
         self.current_budget -= cost
         return response, reward, cost
     

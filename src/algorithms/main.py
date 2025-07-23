@@ -91,7 +91,11 @@ def build_environment(env_config, budget, T):
                  embedder = SentenceTransformerEmbedder(embedder_config["model_path"])
             else:
                 raise ValueError(f"Unsupported text embedding type: {embedder_config['type']}")
-        env_model = ServerBasedEnv(dataset, budget, env_config["model_info"], embedder.embed)
+        if env_config["reward_fn"] == "str_cmp":
+            from src.online_judgement import str_cmp
+        else:
+            raise ValueError(f"Unsupported reward function type: {env_config['reward_fn']}")
+        env_model = ServerBasedEnv(dataset, budget, env_config["model_info"], embedder.embed, str_cmp)
     else:
         raise ValueError(f"Unsupported environment type: {env_config['type']}")
     if env_model.support_length() < T:

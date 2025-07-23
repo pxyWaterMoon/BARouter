@@ -1,7 +1,8 @@
-project_name: "mf_AUPD_server_gsm8k"
+project_name: "mf_AUPD_server_routerbench"
 environment:
   type: "server"
-  data_path: "data/rawdata/gsm8k/main/test-00000-of-00001.parquet"
+  data_path: "data/processed/qa-version/routerbench_0shot/all.parquet"
+  reward_fn: "str_cmp"
   embedder:
     type: "SentenceTransformerEmbedder"
     model_path: "models/all-mpnet-base-v2"
@@ -29,4 +30,4 @@ agent:
   embedding_fn: "sample2prompt"
 log_dir: "outputs/logs"
 T: 50
-budget: 10 
+budget: 100000000
