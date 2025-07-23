@@ -17,6 +17,16 @@ environment:
       base_url: "http://localhost:1158/v1"
       description: "A cost effective model"
       cost_per_token: 0.5
+    # deepseek-v3:
+    #   api_key: "sk-068Hb5cMckD0AAEjA31a4d372b394792B0C62b3d2523Ac0e"
+    #   base_url: "https://api.apiyi.com/v1"
+    #   cost_per_token: 1
+    #   description: "ababaabab"
+    # gemini-1.5-flash:
+    #   api_key: "sk-068Hb5cMckD0AAEjA31a4d372b394792B0C62b3d2523Ac0e"
+    #   base_url: "https://api.apiyi.com/v1"
+    #   cost_per_token: 0.9
+    #   description: "description"
 agent:
   type: "AUPD"
   v_scale : 0.1
@@ -29,5 +39,5 @@ agent:
     sft_file_path: None
   embedding_fn: "sample2prompt"
 log_dir: "outputs/logs"
-T: 50
+T: 10
 budget: 100000000

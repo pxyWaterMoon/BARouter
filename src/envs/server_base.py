@@ -1,7 +1,7 @@
 from src.envs.base_env import BaseEnv
 from src.datasets.prompt_only import PromptOnlyDataLoader
 from src.datasets.prompt_only import PromptOnlySample
-from openai import OpenAI
+from openai import OpenAI, APITimeoutError
 
 class ServerBasedEnv(BaseEnv):
     def __init__(self, dataset, budget, model_info, embed_fn=None, reward_fn=None):
@@ -45,12 +45,15 @@ class ServerBasedEnv(BaseEnv):
             raise ValueError("Sample prompt does not match current sample. please call get_sample() first.")
         if self.current_budget <= 0:
             return None, 0, 0
-        output = self.model_clients[action].chat.completions.create(
-            model=action,
-            messages=[
-                {"role": "user", "content": sample["prompt"]}
-            ],
-        )
+        try:
+            output = self.model_clients[action].chat.completions.create(
+                model=action,
+                messages=[
+                    {"role": "user", "content": sample["prompt"]}
+                ],
+            )
+        except APITimeoutError:
+            return "Warning: API query out of times", 0, 0
         response = output.choices[0].message.content
         self.current_sample["response"] = response
         cost = output.usage.total_tokens * self.moldel_costs[action]
