@@ -16,7 +16,6 @@ class God(BasePredictor):
         ### debug ###
         random_prompt = list(self.gt.keys())[0]
         self.action_list = list(self.gt[random_prompt].keys())
-        print(self.action_list)
         ### debug ###
     
     def offline_training(self, dataset, key:str):
@@ -24,6 +23,7 @@ class God(BasePredictor):
 
     def online_update(self, sample, global_step):
         return
+    
     ### debug ###
     def get_prompt(self, sample_list:list[dict], key = None):
         
