@@ -44,6 +44,10 @@ def build_predictor_models(model_config, key, action_space, logger):
         from src.algorithms.predictor.xgb import XGB
         SFT_dataset = SFTDataset(file_path=model_config["sft_file_path"])
         model = XGB(SFT_dataset=SFT_dataset, key=key, offline= model_config["offline"])
+    elif model_config["type"] == "mean":
+        from src.algorithms.predictor.mean import Mean
+        SFT_dataset = SFTDataset(file_path=model_config["sft_file_path"])
+        model = Mean(SFT_dataset=SFT_dataset, key=key, offline= model_config["offline"])
     elif model_config["type"] == "god":
         from src.algorithms.predictor.god import God
         simuler_dataset = SimulerDataset(file_path=model_config["file_path"])

@@ -59,7 +59,7 @@ class MatrixFactorizationPredictor(BasePredictor):
         self.decay = online_decay
         self.device = device
         self.key = key
-        self.loss = nn.MSELoss(reduction="mean")
+        self.loss = nn.BCELoss(reduction="mean")
         self.logger = logger
         if SFT_dataset is not None:
             self.offline_training(SFT_dataset, key=key, lr=offline_lr,epoch=offline_epoch)

@@ -12,13 +12,32 @@ class God(BasePredictor):
         self.gt = {data["prompt"]: data["ground_truth"] for data in dataset}
         self.key = key
         self.concatenate = False
+
+        ### debug ###
+        random_prompt = list(self.gt.keys())[0]
+        self.action_list = list(self.gt[random_prompt].keys())
+        print(self.action_list)
+        ### debug ###
     
     def offline_training(self, dataset, key:str):
-        pass
-
-    def online_update(self, X, y, global_step):
         return
-    
-    def predict(self, prompts, actions):
-        return np.array([self.gt[prompt][action][self.key] for prompt, action in zip(prompts, actions)])
+
+    def online_update(self, sample, global_step):
+        return
+    ### debug ###
+    def get_prompt(self, sample_list:list[dict], key = None):
+        
+        first_prompt = sample_list[0]["prompt"]
+        if any(sample["prompt"] != first_prompt for sample in sample_list):
+            raise ValueError("Multiple prompts")
+        
+        return first_prompt
+    ### debug ###    
+
+    def predict(self, sample_list):
+        prompt = self.get_prompt(sample_list)
+        return np.array([self.gt[prompt][action][self.key] for action in self.action_list])
+
+    # def predict(self, prompts, actions):
+    #     return np.array([self.gt[prompt][action][self.key] for prompt, action in zip(prompts, actions)])
     
