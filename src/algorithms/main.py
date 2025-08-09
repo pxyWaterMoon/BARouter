@@ -75,6 +75,14 @@ def build_predictor_models(model_config, key, action_space, logger):
             SFT_dataset=SFT_dataset,
             logger=logger,
         )
+    elif model_config["type"] == "kmeans":
+        from src.algorithms.predictor.kmeans import K_means
+        simuler_dataset = SimulerDataset(file_path=model_config["file_path"])
+        model = K_means(simuler_dataset,key=key,k=model_config.get("k",5))
+    elif model_config["type"] == "kmeans_upd":
+        from src.algorithms.predictor.online_kmeans import K_means_online
+        simuler_dataset = SimulerDataset(file_path=model_config["file_path"])
+        model = K_means_online(simuler_dataset,key=key,k=model_config.get("k",5))
     else:
         raise ValueError(f"Unsupported model type: {model_config['type']}")
     return model
@@ -155,6 +163,17 @@ def build_agent(agent_config, B, T, logger, action_space):
             raise ValueError("FixAction agent requires an 'action' key in the configuration.")
         action = agent_config["action"]
         agent = FixAction(action=action, T=T, logger=logger)
+    elif agent_config["type"] == "google":
+        from src.algorithms.routting_algorithms.google import GG
+        agent = GG(
+            rmodel=rmodel,
+            cmodel=cmodel,
+            logger=logger,
+            T=T,
+            budget=B,
+            embedding_fn=select_embedding_fn(agent_config["embedding_fn"]),  # Function to embed the sample
+            lam=agent_config.get("lambda", 0.1)
+        )
     else:
         raise ValueError(f"Unsupported agent type: {agent_config['type']}")
     return agent
