@@ -19,7 +19,7 @@ def str_cmp(sample):
             # Now check if the ground truth is in the sentence
             if gt in sentence:
                 return 1.0
-        if sentence == gt:
+        if sentence == gt or sentence == (gt + ")"):
             return 1.0
     # If no key words found, return 0.0
     return 0.0
