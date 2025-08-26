@@ -7,7 +7,7 @@ import numpy as np
 import os
 
 data_path = "./data/rawdata/routerbench/routerbench_0shot.pkl"
-save_path = "./data/processed/all-mpnet-base-v2/routerbench_0shot_2model_70b"
+save_path = "./data/processed/all-mpnet-base-v2/routerbench_0shot_2model_sel"
 model_path = "./models/all-mpnet-base-v2"
 cost_scale = 1000
 
@@ -22,10 +22,10 @@ available_models_description = {
     # "claude-v1": "A moderately-priced model with enhanced reasoning skills, balancing depth and efficiency for extended conversations.",
     # "claude-v2": "A powerful premium model excelling in complex analysis and long-form content creation with strong contextual understanding.",
     "gpt-4-1106-preview": "A top-tier expensive model delivering exceptional reasoning and creative capabilities for advanced problem-solving.",
-    "meta/llama-2-70b-chat": "A robust open-source model offering strong general-purpose performance at no cost, great for diverse conversational needs.",
+    # "meta/llama-2-70b-chat": "A robust open-source model offering strong general-purpose performance at no cost, great for diverse conversational needs.",
     # "mistralai/mixtral-8x7b-chat": "A highly efficient open-source model specialized in multilingual tasks and technical discussions with balanced output length.",
     # "zero-one-ai/Yi-34B-Chat": "A capable bilingual model freely handling both English and Chinese content with mid-length analytical responses.",
-    # "WizardLM/WizardLM-13B-V1.2": "A free specialized model optimized for complex instruction-following and detailed multi-turn dialogues.",
+    "WizardLM/WizardLM-13B-V1.2": "A free specialized model optimized for complex instruction-following and detailed multi-turn dialogues.",
     # "meta/code-llama-instruct-34b-chat": "A purpose-built coding model freely providing detailed technical explanations and extended code solutions.",
     # "mistralai/mistral-7b-chat": "A compact open-source model delivering fast, focused responses perfect for lightweight applications."
 }
@@ -50,6 +50,18 @@ modeldesc_embeddings = utils.text2embeddings(
 available_models_description_embeddings = {
     model: emb.numpy() for model, emb in zip(available_models_description.keys(), modeldesc_embeddings)
 }
+
+
+###########################  feature_selection ###########################
+reward_feature_selection =  [8, 18, 19, 27, 37, 42, 48, 54, 55, 70, 73, 84, 125, 149, 204, 207, 209, 211, 218, 226, 244, 248, 264, 278, 290, 299, 321, 322, 325, 336, 339, 344, 363, 364, 369, 374, 382, 388, 390, 400, 439, 452, 476, 477, 495, 497, 506, 522, 527, 553, 557, 575, 582, 583, 589, 592, 623, 626, 628, 631, 635, 637, 642, 659, 662, 681, 688, 692, 694, 700, 701, 712, 713, 717, 751]
+cost_feature_selection = [8, 48, 62, 182, 200, 204, 217, 248, 301, 339, 439, 476, 506, 594, 631, 695]
+
+prompts_embeddings = prompts_embeddings[:,reward_feature_selection]
+print(prompts_embeddings.shape)
+exit(0)
+
+###########################  feature_selection ###########################
+
 
 # get avialable models and write the model description
 # print(rawdata_gb_sampleid.get_group("arc-challenge.val.136"))

@@ -23,12 +23,15 @@ class MatrixFactorization(nn.Module):
         model_embedding = self.model_embed(model_id)
         text_embedding = self.text_projection(prompt_embedding)
         prediction = self.classifier(model_embedding * text_embedding)
-        if self.key == "reward":
-            return torch.sigmoid(prediction).squeeze()
-        elif self.key == "cost":
-            return torch.relu(prediction).squeeze()
-        else:
-            raise ValueError("The key must be either 'reward' or 'cost'.")
+
+        ## debug 
+        return torch.sigmoid(prediction).squeeze()
+        # if self.key == "reward":
+        #     return torch.sigmoid(prediction).squeeze()
+        # elif self.key == "cost":
+        #     return torch.relu(prediction).squeeze()
+        # else:
+        #     raise ValueError("The key must be either 'reward' or 'cost'.")
         return prediction.squeeze()
 
 class MatrixFactorizationPredictor(BasePredictor):
@@ -37,7 +40,7 @@ class MatrixFactorizationPredictor(BasePredictor):
                  model_list,
                  key,
                  dim=128,
-                 text_dim=768,
+                 text_dim=75,   #768,75
                  offline_lr=0.01,
                  offline_epoch=1,
                  online_lr=0.01,
@@ -59,7 +62,7 @@ class MatrixFactorizationPredictor(BasePredictor):
         self.decay = online_decay
         self.device = device
         self.key = key
-        self.loss = nn.BCELoss(reduction="mean")
+        self.loss = nn.MSELoss(reduction="mean")
         self.logger = logger
         if SFT_dataset is not None:
             self.offline_training(SFT_dataset, key=key, lr=offline_lr,epoch=offline_epoch)
@@ -110,18 +113,20 @@ class MatrixFactorizationPredictor(BasePredictor):
         if len(self.buffer) >= self.buffer_size:
             x, a, y = self.sample2input(self.buffer, key=self.key)
             self.model.train()
-            self.optimizer.zero_grad()
-            prediction = self.model(a, x)
-            loss = self.loss(prediction, y)
-            loss.backward()
-            self.logger.log_scalar(
-                {
-                    f"predictor/{self.key}_online_loss": loss.item(),
-                    f"predictor/{self.key}_online_lr": self.optimizer.param_groups[0]['lr'],
-                 },
-                step=global_step
-            )
-            self.optimizer.step()
+            online_epoch = 1
+            for _ in range(online_epoch):
+                self.optimizer.zero_grad()
+                prediction = self.model(a, x)
+                loss = self.loss(prediction, y)
+                loss.backward()
+                self.logger.log_scalar(
+                    {
+                        f"predictor/{self.key}_online_loss": loss.item(),
+                        f"predictor/{self.key}_online_lr": self.optimizer.param_groups[0]['lr'],
+                    },
+                    step=global_step
+                )
+                self.optimizer.step()
             self.buffer = []
 
 

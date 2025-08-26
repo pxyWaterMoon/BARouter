@@ -9,7 +9,7 @@ def split(data:list, rate) ->tuple[list,list]:
     return data[:n],data[n:]
 
 class XGB(BasePredictor):
-    def __init__(self, key, SFT_dataset=None, buffer_size=128, offline = False):
+    def __init__(self, key, SFT_dataset=None, buffer_size=512, offline = False):
         self.model = XGBRegressor(max_depth=4,learning_rate=0.01)
         self.key = key
         self.offline = offline
