@@ -1,10 +1,10 @@
 from src.algorithms.routting_algorithms.base_model import OnlineModel
-from src.algorithms.predictor.xgb import XGB
+from src.algorithms.predictor.base_model import BasePredictor
 from src.logger import Logger
 import numpy as np
 
 class GG(OnlineModel):
-    def __init__(self, rmodel:XGB, cmodel:XGB, logger:Logger, T, budget, embedding_fn, lam):
+    def __init__(self, rmodel:BasePredictor, cmodel:BasePredictor, logger:Logger, T, budget, embedding_fn, lam):
         self.budget = budget
         self.rmodel = rmodel
         self.cmodel = cmodel

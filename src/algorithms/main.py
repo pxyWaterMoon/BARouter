@@ -39,11 +39,14 @@ def run_system(T, env, agent, logger):
     return
 
 def build_predictor_models(model_config, key, action_space, logger):
-    if model_config["type"] == "xgb":
-        from src.algorithms.predictor.xgb import XGB
-        from src.algorithms.predictor.xgb import XGB
+    if model_config["type"] == "xgbregressor":
+        from src.algorithms.predictor.xgbregressor import XGBRegressorPredictor
         SFT_dataset = SFTDataset(file_path=model_config["sft_file_path"])
-        model = XGB(SFT_dataset=SFT_dataset, key=key, offline= model_config["offline"])
+        model = XGBRegressorPredictor(SFT_dataset=SFT_dataset, key=key, offline= model_config["offline"])
+    elif model_config["type"] == "xgbclassifier":
+        from src.algorithms.predictor.xgbclassifier import XGBClassifierPredictor
+        SFT_dataset = SFTDataset(file_path=model_config["sft_file_path"])
+        model = XGBClassifierPredictor(SFT_dataset=SFT_dataset, key=key, offline= model_config["offline"])
     elif model_config["type"] == "mean":
         from src.algorithms.predictor.mean import Mean
         SFT_dataset = SFTDataset(file_path=model_config["sft_file_path"])

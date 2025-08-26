@@ -1,10 +1,10 @@
 from src.algorithms.routting_algorithms.base_model import OnlineModel
-from src.algorithms.predictor.xgb import XGB
+from src.algorithms.predictor.base_model import BasePredictor
 from src.logger import Logger
 import numpy as np
 
 class AUPD(OnlineModel):
-    def __init__(self, rmodel:XGB, cmodel:XGB, logger:Logger, T, budget, embedding_fn, buffer_size = 1024, v_scale = 1.0, allow_null = False):
+    def __init__(self, rmodel:BasePredictor, cmodel:BasePredictor, logger:Logger, T, budget, embedding_fn, buffer_size = 1024, v_scale = 1.0, allow_null = False):
         self.budget = budget
         self.rmodel = rmodel
         self.cmodel = cmodel

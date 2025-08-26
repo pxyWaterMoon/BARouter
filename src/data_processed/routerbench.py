@@ -7,8 +7,8 @@ import numpy as np
 import os
 
 data_path = "./data/rawdata/routerbench/routerbench_0shot.pkl"
-save_path = "./data/processed/all-mpnet-base-v2/routerbench_0shot/"
-model_path = "./models/all-mpnet-base-v2"
+save_path = "./data/processed/bert-base-uncased/routerbench_0shot_gpt4_llama270b/"
+model_path = "./models/bert-base-uncased"
 cost_scale = 1000
 
 # Load raw data
@@ -17,17 +17,17 @@ rawdata = pd.read_pickle(data_path)
 prompts = rawdata["prompt"].tolist()
 print(f"Number of prompts: {len(prompts)}")
 available_models_description = {
-    "gpt-3.5-turbo-1106": "A lightweight and cost-efficient model ideal for everyday tasks, generating concise responses with moderate reasoning capabilities.", 
-    "claude-instant-v1": "An affordable model providing quick, straightforward answers best suited for simple queries and short-text generation tasks.",
-    "claude-v1": "A moderately-priced model with enhanced reasoning skills, balancing depth and efficiency for extended conversations.",
-    "claude-v2": "A powerful premium model excelling in complex analysis and long-form content creation with strong contextual understanding.",
+    # "gpt-3.5-turbo-1106": "A lightweight and cost-efficient model ideal for everyday tasks, generating concise responses with moderate reasoning capabilities.", 
+    # "claude-instant-v1": "An affordable model providing quick, straightforward answers best suited for simple queries and short-text generation tasks.",
+    # "claude-v1": "A moderately-priced model with enhanced reasoning skills, balancing depth and efficiency for extended conversations.",
+    # "claude-v2": "A powerful premium model excelling in complex analysis and long-form content creation with strong contextual understanding.",
     "gpt-4-1106-preview": "A top-tier expensive model delivering exceptional reasoning and creative capabilities for advanced problem-solving.",
     "meta/llama-2-70b-chat": "A robust open-source model offering strong general-purpose performance at no cost, great for diverse conversational needs.",
-    "mistralai/mixtral-8x7b-chat": "A highly efficient open-source model specialized in multilingual tasks and technical discussions with balanced output length.",
-    "zero-one-ai/Yi-34B-Chat": "A capable bilingual model freely handling both English and Chinese content with mid-length analytical responses.",
-    "WizardLM/WizardLM-13B-V1.2": "A free specialized model optimized for complex instruction-following and detailed multi-turn dialogues.",
-    "meta/code-llama-instruct-34b-chat": "A purpose-built coding model freely providing detailed technical explanations and extended code solutions.",
-    "mistralai/mistral-7b-chat": "A compact open-source model delivering fast, focused responses perfect for lightweight applications."
+    # "mistralai/mixtral-8x7b-chat": "A highly efficient open-source model specialized in multilingual tasks and technical discussions with balanced output length.",
+    # "zero-one-ai/Yi-34B-Chat": "A capable bilingual model freely handling both English and Chinese content with mid-length analytical responses.",
+    # "WizardLM/WizardLM-13B-V1.2": "A free specialized model optimized for complex instruction-following and detailed multi-turn dialogues.",
+    # "meta/code-llama-instruct-34b-chat": "A purpose-built coding model freely providing detailed technical explanations and extended code solutions.",
+    # "mistralai/mistral-7b-chat": "A compact open-source model delivering fast, focused responses perfect for lightweight applications."
 }
 
 # Convert texts to embeddings

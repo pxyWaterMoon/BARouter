@@ -1,5 +1,4 @@
 from src.algorithms.routting_algorithms.base_model import OnlineModel
-from src.algorithms.predictor.xgb import XGB
 from src.logger import Logger
 import numpy as np
 
