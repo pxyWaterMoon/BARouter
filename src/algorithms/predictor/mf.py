@@ -25,13 +25,13 @@ class MatrixFactorization(nn.Module):
         prediction = self.classifier(model_embedding * text_embedding)
 
         ## debug 
-        return torch.sigmoid(prediction).squeeze()
-        # if self.key == "reward":
-        #     return torch.sigmoid(prediction).squeeze()
-        # elif self.key == "cost":
-        #     return torch.relu(prediction).squeeze()
-        # else:
-        #     raise ValueError("The key must be either 'reward' or 'cost'.")
+        # return torch.sigmoid(prediction).squeeze()
+        if self.key == "reward":
+            return torch.sigmoid(prediction).squeeze()
+        elif self.key == "cost":
+            return torch.relu(prediction).squeeze()
+        else:
+            raise ValueError("The key must be either 'reward' or 'cost'.")
         return prediction.squeeze()
 
 class MatrixFactorizationPredictor(BasePredictor):
