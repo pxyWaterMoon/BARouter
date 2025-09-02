@@ -177,6 +177,9 @@ def build_agent(agent_config, B, T, logger, action_space):
             embedding_fn=select_embedding_fn(agent_config["embedding_fn"]),  # Function to embed the sample
             lam=agent_config.get("lambda", 0.1)
         )
+    elif agent_config["type"] == "carrot":
+        from src.algorithms.routting_algorithms.carrot import CarrotRouter
+        agent = CarrotRouter(budget=B)
     else:
         raise ValueError(f"Unsupported agent type: {agent_config['type']}")
     return agent

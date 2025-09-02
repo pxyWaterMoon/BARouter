@@ -201,6 +201,7 @@ cython_debug/
 
 # Output files
 /outputs/
+/baselines/
 
 # temp config files
 /tmp_configs/

@@ -1,0 +1,9 @@
+project_name: "xgb_AUPD_routerbench_v=1e-1"
+environment:
+  type: "table"
+  file_path: "data/processed/bert-base-uncased/sprout/online_cost_scale_1000.parquet"
+agent:
+  type: "carrot"
+log_dir: "outputs/logs"
+T: 2000
+budget: 1500
