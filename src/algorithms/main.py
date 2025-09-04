@@ -180,6 +180,11 @@ def build_agent(agent_config, B, T, logger, action_space):
     elif agent_config["type"] == "carrot":
         from src.algorithms.routting_algorithms.carrot import CarrotRouter
         agent = CarrotRouter(budget=B)
+    elif agent_config["type"] == "gradient":
+        from src.algorithms.routting_algorithms.gradient import Gradient
+        from src.datasets.simulerdata import SimulerDataset
+        dataset = SimulerDataset(file_path=agent_config["offline_data"])
+        agent = Gradient(dataset=dataset,budget_perround=B/T,k=20)
     else:
         raise ValueError(f"Unsupported agent type: {agent_config['type']}")
     return agent
