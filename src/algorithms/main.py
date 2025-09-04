@@ -86,6 +86,15 @@ def build_predictor_models(model_config, key, action_space, logger):
         from src.algorithms.predictor.online_kmeans import K_means_online
         simuler_dataset = SimulerDataset(file_path=model_config["file_path"])
         model = K_means_online(key=key,n_action=len(action_space),n_cluters=model_config.get("k",20))
+    elif model_config["type"] == "hf_model":
+            from src.algorithms.predictor.hf_model import HFMoodelPredictor
+            model = HFMoodelPredictor(
+                model_list=action_space,
+                key= model_config.get("key", key),
+                model_name_or_path=model_config["model_name_or_path"],
+                cost_table = model_config.get("cost_table", None),
+                input_counter_path_or_name = model_config.get("input_counter_path_or_name", None),
+            )
     else:
         raise ValueError(f"Unsupported model type: {model_config['type']}")
     return model
