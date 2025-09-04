@@ -3,7 +3,7 @@ environment:
   type: "table"
   file_path: "data/processed/bert-base-uncased/sprout/online_cost_scale_1000.parquet"
 agent:
-  type: "AUPD"
+  type: "AUPD_exp"
   v_scale : 0.1
   allow_null : False
   rmodel:
