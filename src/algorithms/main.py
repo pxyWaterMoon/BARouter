@@ -85,7 +85,7 @@ def build_predictor_models(model_config, key, action_space, logger):
     elif model_config["type"] == "kmeans_upd":
         from src.algorithms.predictor.online_kmeans import K_means_online
         simuler_dataset = SimulerDataset(file_path=model_config["file_path"])
-        model = K_means_online(simuler_dataset,key=key,k=model_config.get("k",5))
+        model = K_means_online(key=key,n_action=len(action_space),n_cluters=model_config.get("k",20))
     else:
         raise ValueError(f"Unsupported model type: {model_config['type']}")
     return model
