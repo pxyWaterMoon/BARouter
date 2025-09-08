@@ -41,13 +41,25 @@ class HFMoodelPredictor(BasePredictor):
         )
         if self.key == "reward":
             scores = 1 / (1 + np.exp(-self.predictor(tokenized_text["input_ids"]).logits.detach().numpy()))
+
+            #### orders between [output_tokens] and [self.model_list] are different, need to swap
+            tmp = scores[0][-1].copy()
+            scores[0][-1] = scores[0][-2]
+            scores[0][-2] = tmp
+
         elif self.key == "length":
             output_tokens = self.predictor(tokenized_text["input_ids"]).logits.detach().numpy().T
+
+            #### orders between [output_tokens] and [self.model_list] are different, need to swap
+            tmp = output_tokens[-1].copy()
+            output_tokens[-1] = output_tokens[-2]
+            output_tokens[-2] = tmp
+
             input_tokens = self.input_counter(prompt, return_tensors="pt")["input_ids"].shape[1]
             input_tokens = np.array(input_tokens).T
             costs = []
             for i, model in enumerate(self.model_list):
-                cost = (input_tokens * self.cost_table[model][0] / 1_000_000) + (output_tokens[i] * self.cost_table[model][1] / 1_000_000)
+                cost = ((input_tokens * self.cost_table[model][0] / 1_000_000) + (output_tokens[i] * self.cost_table[model][1] / 1_000))*1000
                 costs.append(cost.tolist())
             scores = np.array(costs).T
         elif self.key == "cost":

@@ -84,7 +84,6 @@ def build_predictor_models(model_config, key, action_space, logger):
         model = K_means(simuler_dataset,key=key,k=model_config.get("k",5))
     elif model_config["type"] == "kmeans_upd":
         from src.algorithms.predictor.online_kmeans import K_means_online
-        simuler_dataset = SimulerDataset(file_path=model_config["file_path"])
         model = K_means_online(key=key,n_action=len(action_space),n_cluters=model_config.get("k",20))
     elif model_config["type"] == "hf_model":
             from src.algorithms.predictor.hf_model import HFMoodelPredictor
@@ -156,7 +155,7 @@ def build_agent(agent_config, B, T, logger, action_space):
             allow_null=agent_config["allow_null"]
         )
     elif agent_config["type"] == "AUPD_exp":
-        from src.algorithms.routting_algorithms.AUPD_exp import AUPD_exp
+        from src.algorithms.routting_algorithms.AUPD_exp import AUPD_exp  ## debug
         agent = AUPD_exp(
             rmodel=rmodel,
             cmodel=cmodel,
@@ -188,7 +187,7 @@ def build_agent(agent_config, B, T, logger, action_space):
         )
     elif agent_config["type"] == "carrot":
         from src.algorithms.routting_algorithms.carrot import CarrotRouter
-        agent = CarrotRouter(budget=B)
+        agent = CarrotRouter(budget=B,mu=agent_config["mu"])
     elif agent_config["type"] == "gradient":
         from src.algorithms.routting_algorithms.gradient import Gradient
         from src.datasets.simulerdata import SimulerDataset

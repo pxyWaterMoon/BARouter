@@ -5,7 +5,7 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import numpy as np
 
 class CarrotRouter(OnlineModel):
-    def __init__(self, budget):
+    def __init__(self, budget, mu=0.1):
         self.budget = budget
         self.t = 0
         # Define model costs
@@ -19,7 +19,7 @@ class CarrotRouter(OnlineModel):
             'wxai-llama-3-3-70b-instruct': [0.9, 0.9], 'wxai-mixtral-8x7b-instruct-v01': [0.6, 0.6],
             'wxai-llama-3-405b-instruct': [3.5, 3.5]
         }
-        self.mu = 0.2
+        self.mu = mu
 
         # Load tokenizers and models
         self.input_counter = AutoTokenizer.from_pretrained("./models/Llama-3.2-3B")
