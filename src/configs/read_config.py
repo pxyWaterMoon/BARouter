@@ -40,6 +40,11 @@ def argument_parser():
         default=False,
         help="Allow null action or not"
     )
+    parser.add_argument(
+        "--mu",
+        type=float,
+        help="The mu parameter for the Carrot algorithm"
+    )
     return parser.parse_args()
 
 def load_config(args):
@@ -66,4 +71,6 @@ def load_config(args):
         config["log_dir"] = args.log_dir
     if args.allow_null:
         config["agent"]["allow_null"] = args.allow_null
+    if args.mu:
+        config["agent"]["mu"] = args.mu
     return config

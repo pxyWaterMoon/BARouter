@@ -8,7 +8,7 @@ import os
 from datasets import load_dataset
 
 data_path = "./data/rawdata/sprout"
-save_path = "./data/processed/bert-base-uncased/sprout_small_no4omini/"
+save_path = "./data/processed/bert-base-uncased/sprout_test/"
 model_path = "./models/bert-base-uncased"
 cost_scale = 1000
 
@@ -21,7 +21,7 @@ def process_sprout_data(split):
         'aws-claude-3-5-sonnet-v1': "A high-performance model designed for complex tasks, offering advanced reasoning and detailed responses suitable for professional use.", 
         'aws-titan-text-premier-v1': "A versatile and cost-effective model ideal for a wide range of applications, balancing performance and efficiency for everyday tasks.",
         'openai-gpt-4o': "A cutting-edge model delivering superior reasoning and creativity, perfect for intricate problem-solving and generating high-quality content.", 
-        # 'openai-gpt-4o-mini': "A compact version of GPT-4o, providing efficient performance for less complex tasks while maintaining good quality in responses.",
+        'openai-gpt-4o-mini': "A compact version of GPT-4o, providing efficient performance for less complex tasks while maintaining good quality in responses.",
         'wxai-granite-3-2b-instruct-8k-max-tokens': "A lightweight model optimized for quick responses and cost efficiency, suitable for straightforward queries and short-form content generation.",
         'wxai-granite-3-8b-instruct-8k-max-tokens': "A mid-sized model offering a balance between performance and cost, ideal for moderate complexity tasks and generating coherent responses.",
         'wxai-llama-3-1-70b-instruct': "A powerful large-scale model excelling in deep understanding and long-form content creation, suitable for advanced applications requiring high accuracy.",
@@ -90,7 +90,7 @@ def process_sprout_data(split):
     return processed_dataset
 
 processed_dataset = []
-for split in ["validation", "test"]:
+for split in ["test"]:
     processed_dataset += process_sprout_data(split)
 
 # randomly split processed_data into train, test

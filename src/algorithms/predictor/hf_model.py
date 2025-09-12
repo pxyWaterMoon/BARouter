@@ -23,6 +23,7 @@ class HFMoodelPredictor(BasePredictor):
             model_name_or_path,
             problem_type="multi_label_classification" if key == "reward" else "regression",
             num_labels=len(model_list),
+            device_map="auto"
         )
         if self.key == "length":
             self.cost_table = cost_table
@@ -54,6 +55,9 @@ class HFMoodelPredictor(BasePredictor):
             tmp = output_tokens[-1].copy()
             output_tokens[-1] = output_tokens[-2]
             output_tokens[-2] = tmp
+
+            th = 0
+            output_tokens[output_tokens<=th] = th
 
             input_tokens = self.input_counter(prompt, return_tensors="pt")["input_ids"].shape[1]
             input_tokens = np.array(input_tokens).T

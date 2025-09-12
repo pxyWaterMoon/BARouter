@@ -72,7 +72,7 @@ class AUPD_exp(OnlineModel):
             )
             return "None"
         ########## Null action ##########
-        weight *= self.eta
+        weight *= self.eta*np.sqrt(self.t+1)
         delta = np.max(weight) - 10
         weight -= delta
         # print(weight)
@@ -108,8 +108,9 @@ class AUPD_exp(OnlineModel):
         self.cmodel.online_update(self.current_sample, self.t)
         self.current_sample = None
         self.Q = max(self.Q + cost - self.b,0)
+        # self.Q = self.Q + cost - self.b
         self.budget -= cost
-        self.b = self.budget / max(self.T - self.t - 1, 1)
+        # self.b = self.budget / max(self.T - self.t - 1, 1)
         self.logger.log_scalar(
                 {
                     "train/Q": self.Q

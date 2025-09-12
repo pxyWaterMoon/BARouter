@@ -1,10 +1,10 @@
-project_name: "xgb_AUPD_routerbench_v=1e-1"
+project_name: "carrot_sprout_mu0.8"
 environment:
   type: "table"
-  file_path: "data/processed/bert-base-uncased/sprout_small/online_cost_scale_1000.parquet"
+  file_path: "data/processed/bert-base-uncased/sprout_test/online_cost_scale_1000.parquet"
 agent:
   type: "carrot"
-  mu: 0.9
-log_dir: "outputs/log0908"
-T: 10618
-budget: 2000
+  mu: 0.80
+log_dir: "outputs/log_carrot_batch"
+T: 5309
+budget: 400

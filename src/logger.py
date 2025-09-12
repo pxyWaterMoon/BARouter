@@ -12,28 +12,34 @@ import json
 
 class Logger:
 
-    _instance: ClassVar[Logger] = None  # singleton pattern
+    # _instance: ClassVar[Logger] = None  # singleton pattern
     writer: tensorboard.SummaryWriter
     history: list= []
     log_dir: str | os.PathLike | None
 
-    def __new__(
-            cls, 
-            log_dir: str | os.PathLike | None = None,
-    ):      
-        # if the log_dir is existed remove it
-        if os.path.exists(log_dir):
-            logging.warning(f"{log_dir} is exstied, remove the original dir.")
-            shutil.rmtree(log_dir)
-        if cls._instance is None:
-            self = cls._instance = super().__new__(
-                cls,
-            )
-            self.writer = tensorboard.SummaryWriter(log_dir=log_dir)
-            self.log_dir = log_dir
-        else:
-            assert log_dir is None, "Cannot change log_dir after Logger is initialized"
-        return cls._instance
+    # def __new__(
+    #         cls, 
+    #         log_dir: str | os.PathLike | None = None,
+    # ):      
+    #     # if the log_dir is existed remove it
+    #     if os.path.exists(log_dir):
+    #         logging.warning(f"{log_dir} is exstied, remove the original dir.")
+    #         shutil.rmtree(log_dir)
+    #     if cls._instance is None:
+    #         self = cls._instance = super().__new__(
+    #             cls,
+    #         )
+    #         self.writer = tensorboard.SummaryWriter(log_dir=log_dir)
+    #         self.log_dir = log_dir
+    #     else:
+    #         assert log_dir is None, "Cannot change log_dir after Logger is initialized"
+    #     return cls._instance
+    
+    def __init__(self, log_dir: str | os.PathLike | None = None):
+        self.writer = tensorboard.SummaryWriter(log_dir=log_dir)
+        self.log_dir = log_dir
+        self.history = []
+        
     
     def log_scalar(self, metrics: dict[str, Any], step: int = 0):
         """

@@ -1,18 +1,29 @@
 project_name: "xgb_AUPD_routerbench_v=1e-1"
 environment:
   type: "table"
-  file_path: "data/processed/all-mpnet-base-v2/routerbench_0shot/online.parquet"
+  file_path: "data/processed/bert-base-uncased/routerbench_0shot/online_cost_scale_1000_cleaned.parquet"
 agent:
-  type: "AUPD"
-  v_scale : 0.1
+  type: "AUPD_exp"
+  v_scale : 1
   allow_null : False
+  eta : 1
+  # rmodel:
+  #   type: "xgbregressor"
+  #   offline : False
+  #   sft_file_path: "data/processed/bert-base-uncased/routerbench_0shot/offline_cost_scale_1000.parquet"
+  # cmodel:
+  #   type: "xgbregressor"
+  #   offline : False
+  #   sft_file_path: "data/processed/bert-base-uncased/routerbench_0shot/offline_cost_scale_1000.parquet"
   rmodel:
-    type: "xgb"
-    sft_file_path: "data/processed/all-mpnet-base-v2/routerbench_0shot/offline.parquet"
+    type: "kmeans_upd"
+    file_path: "data/processed/bert-base-uncased/routerbench_0shot/offline_cost_scale_1000.parquet"
+    k: 20
   cmodel:
-    type: "xgb"
-    sft_file_path: "data/processed/all-mpnet-base-v2/routerbench_0shot/offline.parquet"
+    type: "kmeans_upd"
+    file_path: "data/processed/bert-base-uncased/routerbench_0shot/offline_cost_scale_1000.parquet"
+    k: 20
   embedding_fn: "sample2given_embedding"
 log_dir: "outputs/logs"
-T: 29196
-budget: 10
+T: 20000
+budget: 4000

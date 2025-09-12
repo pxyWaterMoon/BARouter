@@ -29,12 +29,14 @@ class CarrotRouter(OnlineModel):
             './models/carrot-preformance',
             problem_type="multi_label_classification",
             num_labels=len(self.COSTS),
+            device_map="auto"
         )
 
         self.output_counter = AutoModelForSequenceClassification.from_pretrained(
             './models/carrot-cost',
             problem_type="regression",
             num_labels=len(self.COSTS),
+            device_map="auto"
         )
 
         # Map index to model names
