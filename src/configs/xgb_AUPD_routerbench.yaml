@@ -1,12 +1,12 @@
 project_name: "xgb_AUPD_routerbench_v=1e-1"
 environment:
   type: "table"
-  file_path: "data/processed/bert-base-uncased/routerbench_0shot/online_cost_scale_1000_cleaned.parquet"
+  file_path: "data/processed/bert-base-uncased/sprout_test/online_cost_scale_1000.parquet"
 agent:
   type: "AUPD_exp"
   v_scale : 1
   allow_null : False
-  eta : 1
+  eta : 30
   # rmodel:
   #   type: "xgbregressor"
   #   offline : False
@@ -16,14 +16,14 @@ agent:
   #   offline : False
   #   sft_file_path: "data/processed/bert-base-uncased/routerbench_0shot/offline_cost_scale_1000.parquet"
   rmodel:
-    type: "kmeans_upd"
-    file_path: "data/processed/bert-base-uncased/routerbench_0shot/offline_cost_scale_1000.parquet"
+    type: "kmeans"
+    file_path: "data/processed/bert-base-uncased/sprout_test/offline_cost_scale_1000.parquet"
     k: 20
   cmodel:
-    type: "kmeans_upd"
-    file_path: "data/processed/bert-base-uncased/routerbench_0shot/offline_cost_scale_1000.parquet"
+    type: "kmeans"
+    file_path: "data/processed/bert-base-uncased/sprout_test/offline_cost_scale_1000.parquet"
     k: 20
   embedding_fn: "sample2given_embedding"
-log_dir: "outputs/logs"
-T: 20000
-budget: 4000
+log_dir: "outputs/log_sprout"
+T: 5309
+budget: 10000

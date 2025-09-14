@@ -4,7 +4,7 @@ environment:
   file_path: "data/processed/bert-base-uncased/sprout_test/online_cost_scale_1000.parquet"
 agent:
   type: "google"
-  lambda : 0.2
+  lambda : 0.85
   # rmodel:
   #   type: "god"
   #   file_path: "data/processed/bert-base-uncased/routerbench_0shot_gpt4_llama270b/online_cost_scale_1000.parquet"
@@ -27,6 +27,6 @@ agent:
     file_path: "data/processed/bert-base-uncased/sprout_test/offline_cost_scale_1000.parquet"
     k : 1
   embedding_fn: "sample2given_embedding"
-log_dir: "outputs/log_routerbench"
+log_dir: "outputs/log_sprout"
 T: 5309
-budget: 400
+budget: 800
