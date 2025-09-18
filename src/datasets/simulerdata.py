@@ -3,7 +3,7 @@ from typing_extensions import TypedDict  # Python 3.10+
 from typing_extensions import NotRequired  # Python 3.11+
 import pandas as pd
 from typing import Any
-
+import random
 class SimulerSample(TypedDict, total=False):
     prompt: NotRequired[str]
     prompt_embedding: NotRequired[list[float]]
@@ -62,5 +62,31 @@ class SimulerDataLoader:
             return list(first_sample["available_models_description"].keys())
         return []
 
+class RandomSimulerDataLoader:
+    def __init__(self, dataset: SimulerDataset, seed: int = 42):
+        self.dataset = dataset
+        self.seed = seed
+        random.seed(seed)
+        self.length = len(dataset)
+
+        
+    def __len__(self):
+        return 99999999999
+
+    def get_sample(self):
+        index = random.randint(0, self.length - 1)
+        sample = self.dataset[index]
+        return sample
+
+    def reset(self):
+        pass
+
+    def get_action_space(self):
+        if len(self.dataset) == 0:
+            return []
+        first_sample = self.dataset[0]
+        if "available_models_description" in first_sample:
+            return list(first_sample["available_models_description"].keys())
+        return []
 
         

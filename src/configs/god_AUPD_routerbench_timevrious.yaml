@@ -1,0 +1,21 @@
+project_name: "god_expAUPD_2stage_routerbench_timevarious"
+environment:
+  type: "table_timevarious_random"
+  file_paths: ["data/processed/bert-base-uncased/routerbench_0shot_gpt4_llama270b_2level/level1_online_cost_scale_1000.parquet", data/processed/bert-base-uncased/routerbench_0shot_gpt4_llama270b_2level/level2_online_cost_scale_1000.parquet]
+  stages: [0.8, 0.2]
+agent:
+  type: "AUPD_exp"
+  v_scale : 4
+  allow_null : False
+  rmodel:
+    type: "god"
+    file_path: "data/processed/bert-base-uncased/routerbench_0shot_gpt4_llama270b_2level/online_cost_scale_1000.parquet"
+  cmodel:
+    type: "god"
+    file_path: "data/processed/bert-base-uncased/routerbench_0shot_gpt4_llama270b_2level/online_cost_scale_1000.parquet"
+  embedding_fn: "sample2prompt"
+log_dir: "outputs/2tage_logs"
+T: 20000
+budget: 16000
+# budget: 80000
+seed: 42

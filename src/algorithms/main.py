@@ -102,11 +102,19 @@ def build_predictor_models(model_config, key, action_space, logger):
         raise ValueError(f"Unsupported model type: {model_config['type']}")
     return model
 
-def build_environment(env_config, budget, T):
+def build_environment(env_config, budget, T, seed):
     if env_config["type"] == "table":
         from src.envs.table_base import TabelBasedEnv
         simuler_dataset = SimulerDataset(file_path=env_config["file_path"])
         env_model = TabelBasedEnv(simuler_dataset, budget=budget)
+    elif env_config["type"] == "table_multistage_random":
+        from src.envs.table_random import TabelMultistageRandomEnv
+        simuler_datasets = [SimulerDataset(file_path=path) for path in env_config["file_paths"]]
+        env_model = TabelMultistageRandomEnv(simuler_datasets, budget=budget, stages=env_config["stages"], T=T, seed=seed)
+    elif env_config["type"] == "table_timevarious_random":
+        from src.envs.table_random import TabelTimevariousRandomEnv
+        simuler_datasets = [SimulerDataset(file_path=path) for path in env_config["file_paths"]]
+        env_model = TabelTimevariousRandomEnv(simuler_datasets, budget=budget, stages=env_config["stages"], T=T, seed=seed)
     elif env_config["type"] == "server":
         from src.envs.server_base import ServerBasedEnv
         dataset = PromptOnlyDataset(file_path=env_config["data_path"])
@@ -207,13 +215,14 @@ def main(config):
     
     B = config["budget"]
     T = config["T"]
+    seed = config.get("seed", 42)
     # Initialize logger
     logger_filename = f"{config['project_name']}"
     logger_path = os.path.join(config["log_dir"], logger_filename)
     logger = Logger(logger_path)
     
     # Build the environment
-    env = build_environment(config["environment"], B, T)
+    env = build_environment(config["environment"], B, T, seed)
 
     # Build the agent
     agent = build_agent(config["agent"], B, T, logger, env.action_space)
@@ -226,7 +235,7 @@ def main(config):
     print(f"System run completed. Logs saved to {logger_path}")
     logger.save_history()
     
-    return
+    return logger.history
 
 
 if __name__ == "__main__":
