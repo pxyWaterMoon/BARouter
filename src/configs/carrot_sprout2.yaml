@@ -1,0 +1,10 @@
+project_name: "carrot_LargeBudget"
+environment:
+  type: "table"
+  file_path: "data/processed/bert-base-uncased/sprout_test/online_cost_scale_1000.parquet"
+agent:
+  type: "carrot"
+  mu: 0.7
+log_dir: "outputs/log0916"
+T: 5309
+budget: 1500

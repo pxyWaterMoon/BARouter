@@ -1,12 +1,9 @@
-project_name: "hfmodel_AUPD_sprout"
+project_name: "routerbench_0shot"
 environment:
   type: "table"
   file_path: "data/processed/bert-base-uncased/sprout_test/online_cost_scale_1000.parquet"
 agent:
-  type: "AUPD_exp"
-  v_scale : 1
-  allow_null : False
-  eta : 20
+  type: "cons"
   rmodel:
     type: "hf_model"
     key: "reward"
@@ -26,15 +23,7 @@ agent:
             'wxai-llama-3-405b-instruct': [3.5, 3.5]
         }
     input_counter_path_or_name: "./models/Llama-3.2-3B"
-  # rmodel:
-  #   type: "kmeans_upd"
-  #   file_path: "data/processed/bert-base-uncased/sprout_test/online_cost_scale_1000.parquet"
-  #   k : 20
-  # cmodel:
-  #   type: "kmeans_upd"
-  #   file_path: "data/processed/bert-base-uncased/sprout_test/online_cost_scale_1000.parquet"
-  #   k : 20
-  embedding_fn: "sample2prompt"
-log_dir: "outputs/log_carrot_batch"
+  embedding_fn: "sample2given_embedding"
+log_dir: "outputs/log0916"
 T: 5309
-budget: 600000
+budget: 800

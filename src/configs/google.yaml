@@ -1,16 +1,16 @@
 project_name: "routerbench_0shot"
 environment:
   type: "table"
-  file_path: "data/processed/bert-base-uncased/sprout_test/online_cost_scale_1000.parquet"
+  file_path: "data/processed/bert-base-uncased/routerbench_0shot/online_cost_scale_1000_cleaned.parquet"
 agent:
   type: "google"
-  lambda : 0.85
+  lambda : 0.06
   # rmodel:
   #   type: "god"
   #   file_path: "data/processed/bert-base-uncased/routerbench_0shot_gpt4_llama270b/online_cost_scale_1000.parquet"
   rmodel:
     type: "kmeans"
-    file_path: "data/processed/bert-base-uncased/sprout_test/offline_cost_scale_1000.parquet"
+    file_path: "data/processed/bert-base-uncased/routerbench_0shot/online_cost_scale_1000_cleaned.parquet"
     k : 20
   # rmodel:
   #   type: "xgb"
@@ -24,9 +24,9 @@ agent:
   #   sft_file_path: None
   cmodel:
     type: "kmeans"
-    file_path: "data/processed/bert-base-uncased/sprout_test/offline_cost_scale_1000.parquet"
+    file_path: "data/processed/bert-base-uncased/routerbench_0shot/online_cost_scale_1000_cleaned.parquet"
     k : 1
   embedding_fn: "sample2given_embedding"
-log_dir: "outputs/log_sprout"
-T: 5309
-budget: 800
+log_dir: "outputs/log0916"
+T: 20000
+budget: 8000

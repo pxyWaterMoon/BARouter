@@ -12,6 +12,7 @@ from tqdm import tqdm
 
 def run_system(T, env, agent, logger):
     print(f"Starting system run for {T} rounds...")
+    total_r = 0
     with tqdm(total=T) as pbar_total:
         for t in range(T):
             sample = env.get_sample()
@@ -22,6 +23,8 @@ def run_system(T, env, agent, logger):
                 cost = 0
             else:
                 response, reward, cost = env.feedback(sample, action)
+
+            total_r += reward
             log_sample = agent.update(reward, cost, response)
             logger.log_signal(log_sample, t)
             logger.log_scalar(
@@ -36,7 +39,7 @@ def run_system(T, env, agent, logger):
             )
             pbar_total.update(1)
     print(f"System run completed with {T} rounds.")
-    return
+    return total_r/T
 
 def build_predictor_models(model_config, key, action_space, logger):
     if model_config["type"] == "xgbregressor":
@@ -94,31 +97,15 @@ def build_predictor_models(model_config, key, action_space, logger):
                 cost_table = model_config.get("cost_table", None),
                 input_counter_path_or_name = model_config.get("input_counter_path_or_name", None),
             )
-    elif model_config["type"] == "knn":
-        from src.algorithms.predictor.knn import KNN
-        simuler_dataset = SimulerDataset(file_path=model_config["file_path"])
-        model = KNN(simuler_dataset, key=key, k=model_config.get("k", 100))
-    elif model_config["type"] == "olknn":
-        from src.algorithms.predictor.olknn import OLKNN
-        simuler_dataset = SimulerDataset(file_path=model_config["file_path"])
-        model = OLKNN(simuler_dataset, key=key, k=model_config.get("k", 100))
     else:
         raise ValueError(f"Unsupported model type: {model_config['type']}")
     return model
 
-def build_environment(env_config, budget, T, seed=42):
+def build_environment(env_config, budget, T):
     if env_config["type"] == "table":
         from src.envs.table_base import TabelBasedEnv
         simuler_dataset = SimulerDataset(file_path=env_config["file_path"])
         env_model = TabelBasedEnv(simuler_dataset, budget=budget)
-    elif env_config["type"] == "table_multistage_random":
-        from src.envs.table_random import TabelMultistageRandomEnv
-        simuler_datasets = [SimulerDataset(file_path=path) for path in env_config["file_paths"]]
-        env_model = TabelMultistageRandomEnv(simuler_datasets, budget=budget, stages=env_config["stages"], T=T, seed=seed)
-    elif env_config["type"] == "table_timevarious_random":
-        from src.envs.table_random import TabelTimevariousRandomEnv
-        simuler_datasets = [SimulerDataset(file_path=path) for path in env_config["file_paths"]]
-        env_model = TabelTimevariousRandomEnv(simuler_datasets, budget=budget, stages=env_config["stages"], T=T, seed=seed)
     elif env_config["type"] == "server":
         from src.envs.server_base import ServerBasedEnv
         dataset = PromptOnlyDataset(file_path=env_config["data_path"])
@@ -201,26 +188,6 @@ def build_agent(agent_config, B, T, logger, action_space):
             embedding_fn=select_embedding_fn(agent_config["embedding_fn"]),  # Function to embed the sample
             lam=agent_config.get("lambda", 0.1)
         )
-    elif agent_config["type"] == "ratio":
-        from src.algorithms.routting_algorithms.ratio import Ratio
-        agent = Ratio(
-            rmodel=rmodel,
-            cmodel=cmodel,
-            logger=logger,
-            T=T,
-            budget=B,
-            embedding_fn=select_embedding_fn(agent_config["embedding_fn"]),  # Function to embed the sample
-        )
-    elif agent_config["type"] == "cons":
-        from src.algorithms.routting_algorithms.cons import Cons
-        agent = Cons(
-            rmodel=rmodel,
-            cmodel=cmodel,
-            logger=logger,
-            T=T,
-            budget=B,
-            embedding_fn=select_embedding_fn(agent_config["embedding_fn"]),  # Function to embed the sample
-        )
     elif agent_config["type"] == "carrot":
         from src.algorithms.routting_algorithms.carrot import CarrotRouter
         agent = CarrotRouter(budget=B,mu=agent_config["mu"])
@@ -239,14 +206,13 @@ def main(config):
     
     B = config["budget"]
     T = config["T"]
-    seed = config.get("seed", 42)
     # Initialize logger
     logger_filename = f"{config['project_name']}"
     logger_path = os.path.join(config["log_dir"], logger_filename)
     logger = Logger(logger_path)
     
     # Build the environment
-    env = build_environment(config["environment"], B, T, seed)
+    env = build_environment(config["environment"], B, T)
 
     # Build the agent
     agent = build_agent(config["agent"], B, T, logger, env.action_space)
@@ -254,16 +220,38 @@ def main(config):
     print(f"The system is constructed successfully!\n")
 
     # Run the system
-    run_system(config["T"], env, agent, logger)
+    r = run_system(config["T"], env, agent, logger)
     
     print(f"System run completed. Logs saved to {logger_path}")
     logger.save_history()
     
-    return logger.history
+    return r
 
 
 if __name__ == "__main__":
     from src.configs.read_config import argument_parser, load_config
+    import json
     args = argument_parser()
     config = load_config(args)
-    main(config)
+    print(main(config))
+    B_list = range(400,1600,100)
+    avg_r_list = {}
+    name = config["project_name"]
+    par_list = [0.99,0.95,0.90,0.80,0.70]
+    par_name = "mu"
+    for val in par_list:
+        config["agent"][par_name] = val
+        avg_r_list[name]=[]
+        for B in B_list:
+            print(f"Running system with budget: {B}")
+            config["budget"] = B
+            config["project_name"] = f"{name}_B{B}"
+            r = main(config)
+            print(f"Completed run with budget {B}, total reward: {r}")
+            print("-" * 50)
+            avg_r_list[name].append(r)
+        print(avg_r_list)
+
+    with open(f"{name}_batch_results.json", "w") as f:
+        json.dump(avg_r_list, f)
+    

@@ -10,14 +10,14 @@ class AUPD_exp(OnlineModel):
         self.cmodel = cmodel
         self.b = self.budget / T
         self.Q = 0
-        self.V = self.b * np.sqrt(T) * self.b
+        self.V = self.b * np.sqrt(T) #* np.sqrt(self.b)
 
         self.V = self.V * v_scale # scale
 
-        self.rinput_buffer = []
-        self.cinput_buffer = []
-        self.r_buffer = []
-        self.c_buffer = []
+        # self.rinput_buffer = []
+        # self.cinput_buffer = []
+        # self.r_buffer = []
+        # self.c_buffer = []
         self.buffer_size = buffer_size
         self.t = 0
         self.logger = logger

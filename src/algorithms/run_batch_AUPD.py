@@ -97,6 +97,10 @@ def build_predictor_models(model_config, key, action_space, logger):
                 cost_table = model_config.get("cost_table", None),
                 input_counter_path_or_name = model_config.get("input_counter_path_or_name", None),
             )
+    elif model_config["type"] == "knn":
+        from src.algorithms.predictor.knn import KNN
+        simuler_dataset = SimulerDataset(file_path=model_config["file_path"])
+        model = KNN(simuler_dataset, key=key, k=model_config.get("k", 100))
     else:
         raise ValueError(f"Unsupported model type: {model_config['type']}")
     return model
@@ -235,7 +239,6 @@ if __name__ == "__main__":
     config = load_config(args)
     print(main(config))
     B_list = range(400,1600,100)
-    # mu_list = [0.99, 0.95, 0.9, 0.7, 0.5]
     avg_r_list = {}
     name = config["project_name"]
     avg_r_list[name]=[]
