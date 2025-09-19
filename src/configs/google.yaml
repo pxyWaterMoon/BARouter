@@ -28,5 +28,5 @@ agent:
     k : 1
   embedding_fn: "sample2given_embedding"
 log_dir: "outputs/log0916"
-T: 20000
-budget: 8000
+T: 2000
+budget: 1500

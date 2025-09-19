@@ -101,7 +101,7 @@ def build_predictor_models(model_config, key, action_space, logger):
     elif model_config["type"] == "olknn":
         from src.algorithms.predictor.olknn import OLKNN
         simuler_dataset = SimulerDataset(file_path=model_config["file_path"])
-        model = OLKNN(simuler_dataset, key=key, k=model_config.get("k", 100))
+        model = OLKNN(simuler_dataset, key=key, k=model_config.get("k", 100),offline=model_config.get("offline", True))
     else:
         raise ValueError(f"Unsupported model type: {model_config['type']}")
     return model

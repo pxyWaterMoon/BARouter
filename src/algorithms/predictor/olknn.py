@@ -17,8 +17,11 @@ class KNNPredictor:
         self.update(X, y)
     
     def update(self, X, y):
-        self.X = X if self.X is None else self.X + X
-        self.y = y if self.y is None else self.y + y
+        
+        self.X = X if self.X is None else np.vstack([self.X, X])
+        # if self.y is not None:
+        #     print(self.y.shape,y.shape)
+        self.y = y if self.y is None else np.concatenate([self.y, np.array(y)])
         X = np.array(self.X).astype(np.float64)
         y = np.array(self.y).astype(np.float64)
         self.knn = KNeighborsRegressor(n_neighbors=self.k,
@@ -32,16 +35,25 @@ class KNNPredictor:
         return self.knn.predict(x)[0]    
 
 class OLKNN(BasePredictor):
-    def __init__(self, dataset, key, k=5):
+    def __init__(self, dataset, key, k=5, offline = True):
         self.gt = {data["prompt"]: data["ground_truth"] for data in dataset}
         self.key = key
         self.K = k
+
+        # if not offline:
+        #     dataset=dataset[:10]
 
         X = np.array([data["prompt_embedding"] for data in dataset])
         ### debug ###
         random_prompt = list(self.gt.keys())[0]
         self.action_list = list(self.gt[random_prompt].keys())
-        self.knn_dict = {action: KNNPredictor(X, np.array([data["ground_truth"][action][key] for data in dataset]), k) for action in self.action_list}
+
+        NN = 200
+
+        if offline:
+            self.knn_dict = {action: KNNPredictor(X, np.array([data["ground_truth"][action][key] for data in dataset]), k) for action in self.action_list}
+        else:
+            self.knn_dict = {action: KNNPredictor(X[:NN], np.array([data["ground_truth"][action][key] for data in dataset])[:NN], k) for action in self.action_list}
         self.buffer_maxsize = 64
         self.clear_buffer()
 

@@ -8,14 +8,16 @@ agent:
   eta: 20
   allow_null : False
   rmodel:
-    type: "knn"
+    type: "olknn"
     file_path: "data/processed/bert-base-uncased/routerbench_0shot/offline_cost_scale_1000.parquet"
     k : 100
+    offline : False
   cmodel:
-    type: "knn"
+    type: "olknn"
     file_path: "data/processed/bert-base-uncased/routerbench_0shot/offline_cost_scale_1000.parquet"
     k : 100
+    offline : False
   embedding_fn: "sample2prompt"
 log_dir: "outputs/log0916"
-T: 2000
-budget: 1000
+T: 5000
+budget: 2000
