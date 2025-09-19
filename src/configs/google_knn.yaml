@@ -1,4 +1,4 @@
-project_name: "routerbench_0shot"
+project_name: "routerbench_0shot_knn"
 environment:
   type: "table"
   file_path: "data/processed/bert-base-uncased/sprout/online_cost_scale_1000.parquet"

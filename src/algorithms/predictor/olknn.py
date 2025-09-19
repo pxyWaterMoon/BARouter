@@ -14,11 +14,6 @@ class KNNPredictor:
         self.k = k
         self.X = None
         self.y = None
-        self.knn = KNeighborsRegressor(n_neighbors=k,
-                                       weights='distance',
-                                       algorithm='auto',
-                                       p=2,
-                                    )
         self.update(X, y)
     
     def update(self, X, y):
@@ -26,6 +21,11 @@ class KNNPredictor:
         self.y = y if self.y is None else self.y + y
         X = np.array(self.X).astype(np.float64)
         y = np.array(self.y).astype(np.float64)
+        self.knn = KNeighborsRegressor(n_neighbors=self.k,
+                                    weights='distance',
+                                    algorithm='auto',
+                                    p=2,
+                                )
         self.knn.fit(X, y)
 
     def predict(self, x):
