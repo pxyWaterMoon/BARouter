@@ -98,6 +98,10 @@ def build_predictor_models(model_config, key, action_space, logger):
         from src.algorithms.predictor.knn import KNN
         simuler_dataset = SimulerDataset(file_path=model_config["file_path"])
         model = KNN(simuler_dataset, key=key, k=model_config.get("k", 100))
+    elif model_config["type"] == "olknn":
+        from src.algorithms.predictor.olknn import OLKNN
+        simuler_dataset = SimulerDataset(file_path=model_config["file_path"])
+        model = OLKNN(simuler_dataset, key=key, k=model_config.get("k", 100))
     else:
         raise ValueError(f"Unsupported model type: {model_config['type']}")
     return model

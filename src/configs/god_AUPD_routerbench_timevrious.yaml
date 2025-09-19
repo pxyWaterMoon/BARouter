@@ -15,7 +15,7 @@ agent:
     file_path: "data/processed/bert-base-uncased/routerbench_0shot_gpt4_llama270b_2level/online_cost_scale_1000.parquet"
   embedding_fn: "sample2prompt"
 log_dir: "outputs/2tage_logs"
-T: 20000
-budget: 16000
+T: 25000
+budget: 20000
 # budget: 80000
 seed: 42
