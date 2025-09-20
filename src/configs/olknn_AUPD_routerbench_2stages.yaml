@@ -1,0 +1,26 @@
+project_name: "olknn_AUPDexp"
+environment:
+  type: "table_multistage_random"
+  file_paths: ["data/processed/bert-base-uncased/routerbench_0shot_gpt4_llama270b_2level/level1_online_cost_scale_1000.parquet", data/processed/bert-base-uncased/routerbench_0shot_gpt4_llama270b_2level/level2_online_cost_scale_1000.parquet]
+  # stages: [[0.5, [0.8, 0.2]], [0.5, [0.2, 0.8]]]
+  stages: [[1.0, [0.8, 0.2]]]
+agent:
+  type: "AUPD_exp"
+  v_scale : 4
+  allow_null : False
+  rmodel:
+    type: "olknn"
+    file_path: "data/processed/bert-base-uncased/routerbench_0shot_gpt4_llama270b_2level/offline_cost_scale_1000.parquet"
+    k : 100
+    offline : False
+  cmodel:
+    type: "olknn"
+    file_path: "data/processed/bert-base-uncased/routerbench_0shot_gpt4_llama270b_2level/offline_cost_scale_1000.parquet"
+    k : 100
+    offline : False
+  embedding_fn: "sample2prompt"
+log_dir: "outputs/routerbench_olknn_2stage_logs_dist1_final"
+T: 25000
+budget: 20000
+# budget: 80000
+seed: 42

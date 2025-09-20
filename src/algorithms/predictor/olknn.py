@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
-from sklearn.neighbors import KNeighborsRegressor
+# from sklearn.neighbors import KNeighborsRegressor
+from cuml.neighbors import KNeighborsRegressor
 from sklearn.preprocessing import StandardScaler
 from src.algorithms.predictor.base_model import BasePredictor
 from src.algorithms.utils import embedding_batch
@@ -25,7 +26,7 @@ class KNNPredictor:
         X = np.array(self.X).astype(np.float64)
         y = np.array(self.y).astype(np.float64)
         self.knn = KNeighborsRegressor(n_neighbors=self.k,
-                                    weights='distance',
+                                    weights='uniform',
                                     algorithm='auto',
                                     p=2,
                                 )
