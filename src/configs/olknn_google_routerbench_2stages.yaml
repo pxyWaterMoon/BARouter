@@ -1,12 +1,12 @@
-project_name: "olknn_google"
+project_name: "olknn_2stage_google_lambda0.15"
 environment:
   type: "table_multistage_random"
   file_paths: ["data/processed/bert-base-uncased/routerbench_0shot_gpt4_llama270b_2level/level1_online_cost_scale_1000.parquet", data/processed/bert-base-uncased/routerbench_0shot_gpt4_llama270b_2level/level2_online_cost_scale_1000.parquet]
-  # stages: [[0.5, [0.8, 0.2]], [0.5, [0.2, 0.8]]]
-  stages: [[1.0, [0.8, 0.2]]]
+  stages: [[0.5, [0.8, 0.2]], [0.5, [0.2, 0.8]]]
+  # stages: [[1.0, [0.8, 0.2]]]
 agent:
   type: "google"
-  lambda : 0.37
+  lambda : 0.15
   rmodel:
     type: "olknn"
     file_path: "data/processed/bert-base-uncased/routerbench_0shot_gpt4_llama270b_2level/offline_cost_scale_1000.parquet"
