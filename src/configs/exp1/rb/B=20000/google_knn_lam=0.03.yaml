@@ -4,7 +4,7 @@ environment:
   file_path: "data/processed/bert-base-uncased/routerbench_0shot/online_cost_scale_1000_cleaned.parquet"
 agent:
   type: "google"
-  lambda : 0.4
+  lambda : 0.03
   rmodel:
     type: "olknn"
     file_path: "data/processed/bert-base-uncased/routerbench_0shot/offline_cost_scale_1000.parquet"
@@ -17,5 +17,5 @@ agent:
     offline : False
   embedding_fn: "sample2given_embedding"
 log_dir: "outputs/log0919"
-T: 2000
-budget: 500
+T: 20000
+budget: 20000

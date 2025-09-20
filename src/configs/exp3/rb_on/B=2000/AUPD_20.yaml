@@ -1,10 +1,12 @@
-project_name: "routerbench_0shot_knn"
+project_name: "AUPD_exp_routerbench"
 environment:
   type: "table"
   file_path: "data/processed/bert-base-uncased/routerbench_0shot/online_cost_scale_1000_cleaned.parquet"
 agent:
-  type: "google"
-  lambda : 0.4
+  type: "AUPD_exp"
+  v_scale : 1
+  eta: 20
+  allow_null : False
   rmodel:
     type: "olknn"
     file_path: "data/processed/bert-base-uncased/routerbench_0shot/offline_cost_scale_1000.parquet"
@@ -15,7 +17,7 @@ agent:
     file_path: "data/processed/bert-base-uncased/routerbench_0shot/offline_cost_scale_1000.parquet"
     k : 100
     offline : False
-  embedding_fn: "sample2given_embedding"
+  embedding_fn: "sample2prompt"
 log_dir: "outputs/log0919"
 T: 2000
-budget: 500
+budget: 2000

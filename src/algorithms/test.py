@@ -79,16 +79,11 @@ if __name__ == "__main__":
     from src.algorithms.main import build_agent,build_environment
     env_path = "/home/zulk2024/ICLR2026/tmp_configs/test_env.yaml"
     agent_path_list = [
-        "/home/zulk2024/ICLR2026/src/configs/test1/carrot_sprout.yaml",
-        "/home/zulk2024/ICLR2026/src/configs/test1/ratio_sprout_hf.yaml",
-        "/home/zulk2024/ICLR2026/src/configs/test1/ratio_sprout_knn.yaml",
-        "/home/zulk2024/ICLR2026/src/configs/test1/AUPD_sprout_hf.yaml",
-        "/home/zulk2024/ICLR2026/src/configs/test1/AUPD_sprout_knn.yaml",
-        "/home/zulk2024/ICLR2026/src/configs/test1/cons_sprout_hf.yaml",
-        "/home/zulk2024/ICLR2026/src/configs/test1/cons_sprout_knn.yaml"
+        "/home/zulk2024/ICLR2026/src/configs/test1/AUPD_routerbench_knn.yaml",
+        "/home/zulk2024/ICLR2026/src/configs/test1/cons_routerbench.yaml",
     ]
-    logger_path = "outputs/log0916"
-    B_list = range(1500,1501)
+    logger_path = "outputs/log0919"
+    B_list = [500,1000,1500]
     env_cfg = read_config(env_path)
     T = env_cfg["T"]
     env_cfg = env_cfg["environment"]
@@ -111,6 +106,6 @@ if __name__ == "__main__":
             res[title].append(r)
     
     import json
-    name = "rb_B=10000"
+    name = "test"
     with open(f"./outputs/test_json/{name}_batch_results.json", "w") as f:
         json.dump(res, f)

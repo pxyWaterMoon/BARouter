@@ -9,12 +9,12 @@ agent:
     type: "olknn"
     file_path: "data/processed/bert-base-uncased/sprout/offline_cost_scale_1000.parquet"
     k : 100
-    offline : False
+    offline : True
   cmodel:
     type: "olknn"
     file_path: "data/processed/bert-base-uncased/sprout/offline_cost_scale_1000.parquet"
     k : 100
-    offline : False
+    offline : True
   embedding_fn: "sample2given_embedding"
 log_dir: "outputs/log0919"
 T: 5309

@@ -11,6 +11,7 @@ from tqdm import tqdm
 
 
 def run_system(T, env, agent, logger):
+    total_reward = 0
     print(f"Starting system run for {T} rounds...")
     with tqdm(total=T) as pbar_total:
         for t in range(T):
@@ -22,6 +23,7 @@ def run_system(T, env, agent, logger):
                 cost = 0
             else:
                 response, reward, cost = env.feedback(sample, action)
+            total_reward += reward
             log_sample = agent.update(reward, cost, response)
             logger.log_signal(log_sample, t)
             logger.log_scalar(
@@ -36,7 +38,7 @@ def run_system(T, env, agent, logger):
             )
             pbar_total.update(1)
     print(f"System run completed with {T} rounds.")
-    return
+    return total_reward / T
 
 def build_predictor_models(model_config, key, action_space, logger):
     if model_config["type"] == "xgbregressor":
@@ -201,17 +203,6 @@ def build_agent(agent_config, B, T, logger, action_space):
             embedding_fn=select_embedding_fn(agent_config["embedding_fn"]),  # Function to embed the sample
             lam=agent_config.get("lambda", 0.1)
         )
-    elif agent_config["type"] == "carrot2":
-        from src.algorithms.routting_algorithms.carrot2 import Carrot2
-        agent = Carrot2(
-            rmodel=rmodel,
-            cmodel=cmodel,
-            logger=logger,
-            T=T,
-            budget=B,
-            embedding_fn=select_embedding_fn(agent_config["embedding_fn"]),  # Function to embed the sample
-            mu=agent_config.get("mu", 0.3)
-        )
     elif agent_config["type"] == "ratio":
         from src.algorithms.routting_algorithms.ratio import Ratio
         agent = Ratio(
@@ -246,6 +237,7 @@ def build_agent(agent_config, B, T, logger, action_space):
 
 
 def main(config):
+    from src.algorithms.main import build_environment, build_agent
     print(f"Building system with configuration: {config}")
     
     B = config["budget"]
@@ -265,16 +257,48 @@ def main(config):
     print(f"The system is constructed successfully!\n")
 
     # Run the system
-    run_system(config["T"], env, agent, logger)
+    res = run_system(config["T"], env, agent, logger)
     
     print(f"System run completed. Logs saved to {logger_path}")
     logger.save_history()
     
-    return logger.history
+    return res
 
+def read_config(config_path):
+    import yaml
+    with open(config_path, "r") as file:
+        config = yaml.safe_load(file)
+    return config
 
 if __name__ == "__main__":
-    from src.configs.read_config import argument_parser, load_config
-    args = argument_parser()
-    config = load_config(args)
-    main(config)
+    
+    # args = argument_parser()
+    # config = load_config(args)
+    # path = "src/configs/exp1/rb/B=2000/AUPD_knn.yaml"
+    # main(read_config(path))
+
+    group = {
+        "rb":[2000,5000,20000],
+        "sp":[500,900,2000]
+    }
+    respeat = 5
+    res = {}
+    for ds_name,b_list in group.items():
+        for budget in b_list:
+            folder = f"src/configs/exp1/{ds_name}/B={budget}"
+            cfg_list = os.listdir(folder)
+            for cfg_path in cfg_list:
+                cfg = read_config(f"{folder}/{cfg_path}")
+                cfg["budget"] = budget
+                res_list = []
+                for _ in range(respeat):
+                    res_list.append(main(cfg))
+                print(np.average(np.array(res_list)))
+                name = f"{ds_name}_{cfg['agent']['type']}"
+                if name not in res:
+                    res[name]=[]
+                res[name].append(res_list)
+    
+    import json
+    with open(f"./outputs/exp1/exp_knn.json", "w") as f:
+        json.dump(res, f)

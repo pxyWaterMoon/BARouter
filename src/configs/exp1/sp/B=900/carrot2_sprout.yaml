@@ -1,12 +1,10 @@
-project_name: "AUPD_exp_sp"
+project_name: "carrot_LargeBudget"
 environment:
   type: "table"
   file_path: "data/processed/bert-base-uncased/sprout_test/online_cost_scale_1000.parquet"
 agent:
-  type: "AUPD_exp"
-  v_scale : 1
-  eta: 20
-  allow_null : False
+  type: "carrot2"
+  mu: 0.9
   rmodel:
     type: "olknn"
     file_path: "data/processed/bert-base-uncased/sprout_test/offline_cost_scale_1000.parquet"
@@ -17,7 +15,7 @@ agent:
     file_path: "data/processed/bert-base-uncased/sprout_test/offline_cost_scale_1000.parquet"
     k : 100
     offline : False
-  embedding_fn: "sample2prompt"
+  embedding_fn: "sample2given_embedding"
 log_dir: "outputs/log0919"
 T: 5309
 budget: 900

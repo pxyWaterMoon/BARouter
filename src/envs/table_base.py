@@ -23,7 +23,7 @@ from src.datasets.prompt_only import PromptOnlySample
 class TabelBasedEnv(BaseEnv):
     def __init__(self, dataset, budget):
         super().__init__()
-        self.loader = SimulerDataLoader(dataset,shuffle=False)
+        self.loader = SimulerDataLoader(dataset,shuffle=True)
         self.total_budget = budget
         self.action_space = self.loader.get_action_space()
         self.reset()

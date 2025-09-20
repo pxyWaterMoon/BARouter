@@ -4,7 +4,7 @@ environment:
   file_path: "data/processed/bert-base-uncased/sprout_test/online_cost_scale_1000.parquet"
 agent:
   type: "carrot"
-  mu: 0.7
-log_dir: "outputs/log_carrot_batch"
-T: 5309
-budget: 800
+  mu: 0.4
+log_dir: "outputs/log0919"
+T: 530
+budget: 100

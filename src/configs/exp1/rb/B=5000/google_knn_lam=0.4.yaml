@@ -17,5 +17,5 @@ agent:
     offline : False
   embedding_fn: "sample2given_embedding"
 log_dir: "outputs/log0919"
-T: 2000
-budget: 500
+T: 20000
+budget: 5000
