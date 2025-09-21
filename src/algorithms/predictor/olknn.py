@@ -49,7 +49,7 @@ class OLKNN(BasePredictor):
         random_prompt = list(self.gt.keys())[0]
         self.action_list = list(self.gt[random_prompt].keys())
 
-        NN = 200
+        NN = self.K
 
         if offline:
             self.knn_dict = {action: KNNPredictor(X, np.array([data["ground_truth"][action][key] for data in dataset]), k) for action in self.action_list}

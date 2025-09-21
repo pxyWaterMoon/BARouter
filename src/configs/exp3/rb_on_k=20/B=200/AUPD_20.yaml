@@ -5,17 +5,17 @@ environment:
 agent:
   type: "AUPD_exp"
   v_scale : 1
-  eta: 100
+  eta: 20
   allow_null : False
   rmodel:
-    type: "knn"
+    type: "olknn"
     file_path: "data/processed/bert-base-uncased/routerbench_0shot/offline_cost_scale_1000.parquet"
-    k : 50
+    k : 20
     offline : False
   cmodel:
-    type: "knn"
+    type: "olknn"
     file_path: "data/processed/bert-base-uncased/routerbench_0shot/offline_cost_scale_1000.parquet"
-    k : 50
+    k : 20
     offline : False
   embedding_fn: "sample2prompt"
 log_dir: "outputs/log0919"
