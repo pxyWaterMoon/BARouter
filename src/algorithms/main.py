@@ -171,7 +171,7 @@ def build_agent(agent_config, B, T, logger, action_space):
             allow_null=agent_config["allow_null"]
         )
     elif agent_config["type"] == "AUPD_exp":
-        from src.algorithms.routting_algorithms.AUPD_exp import AUPD_exp  ## debug
+        from src.algorithms.routting_algorithms.AUPD_exp import AUPD_exp
         agent = AUPD_exp(
             rmodel=rmodel,
             cmodel=cmodel,
@@ -183,6 +183,19 @@ def build_agent(agent_config, B, T, logger, action_space):
             v_scale=agent_config["v_scale"],
             allow_null=agent_config["allow_null"],
             eta=agent_config["eta"] if "eta" in agent_config else 30
+        )
+    elif agent_config["type"] == "LOE2D":
+        from src.algorithms.routting_algorithms.LOE2D import LOE2D
+        agent = LOE2D(
+            rmodel=rmodel,
+            cmodel=cmodel,
+            logger=logger,
+            T=T,
+            budget=B,
+            K=len(action_space),
+            U = agent_config.get("U", 30),
+            embedding_fn=select_embedding_fn(agent_config["embedding_fn"]),  # Function to embed the sample
+            buffer_size=agent_config.get("buffer_size", 64)
         )
     elif agent_config["type"] == "FixAction":
         from src.algorithms.routting_algorithms.fix_action import FixAction
@@ -232,11 +245,21 @@ def build_agent(agent_config, B, T, logger, action_space):
             budget=B,
             embedding_fn=select_embedding_fn(agent_config["embedding_fn"]),  # Function to embed the sample
         )
+    elif agent_config["type"] == "cons2":
+        from src.algorithms.routting_algorithms.cons2 import Cons2
+        agent = Cons2(
+            rmodel=rmodel,
+            cmodel=cmodel,
+            logger=logger,
+            T=T,
+            budget=B,
+            embedding_fn=select_embedding_fn(agent_config["embedding_fn"]),  # Function to embed the sample
+        )
     elif agent_config["type"] == "carrot":
         from src.algorithms.routting_algorithms.carrot import CarrotRouter
         agent = CarrotRouter(budget=B,mu=agent_config["mu"])
     elif agent_config["type"] == "gradient":
-        from src.algorithms.routting_algorithms.gradient import Gradient
+        from src.algorithms.routting_algorithms.gradient_policy import Gradient
         from src.datasets.simulerdata import SimulerDataset
         dataset = SimulerDataset(file_path=agent_config["offline_data"])
         agent = Gradient(dataset=dataset,budget_perround=B/T,k=20)

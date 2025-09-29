@@ -1,0 +1,21 @@
+project_name: "AUPD_exp_sp"
+environment:
+  type: "table"
+  file_path: "data/processed/bert-base-uncased/sprout_test/online_cost_scale_1000.parquet"
+agent:
+  type: "LOE2D"
+  U : 30
+  rmodel:
+    type: "olknn"
+    file_path: "data/processed/bert-base-uncased/sprout_test/offline_cost_scale_1000.parquet"
+    k : 100
+    offline : False
+  cmodel:
+    type: "olknn"
+    file_path: "data/processed/bert-base-uncased/sprout_test/offline_cost_scale_1000.parquet"
+    k : 100
+    offline : False
+  embedding_fn: "sample2prompt"
+log_dir: "outputs/log0926"
+T: 5309
+budget: 900
