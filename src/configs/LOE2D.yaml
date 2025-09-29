@@ -1,18 +1,18 @@
-project_name: "AUPD_exp_sp"
+project_name: "LOE2D_b900"
 environment:
   type: "table"
-  file_path: "data/processed/bert-base-uncased/sprout_test/online_cost_scale_1000.parquet"
+  file_path: "data/processed/bert-base-uncased/sprout/online_cost_scale_1000.parquet"
 agent:
   type: "LOE2D"
-  U : 30
+  U : 0.01
   rmodel:
     type: "olknn"
-    file_path: "data/processed/bert-base-uncased/sprout_test/offline_cost_scale_1000.parquet"
+    file_path: "data/processed/bert-base-uncased/sprout/offline_cost_scale_1000.parquet"
     k : 100
     offline : False
   cmodel:
     type: "olknn"
-    file_path: "data/processed/bert-base-uncased/sprout_test/offline_cost_scale_1000.parquet"
+    file_path: "data/processed/bert-base-uncased/sprout/offline_cost_scale_1000.parquet"
     k : 100
     offline : False
   embedding_fn: "sample2prompt"

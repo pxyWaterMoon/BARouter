@@ -12,7 +12,8 @@ class LOE2D(OnlineModel):
 
         self.K = K
         self.Q = 0
-        self.V = np.sqrt(T * U * np.log(T))
+        self.V = self.b * np.sqrt(T * U * np.log(T))
+        # self.V = self.b * np.sqrt(T)
         self.beta = 1
         self.gamma = K * np.sqrt(T/U)
         self.buffer_size = buffer_size
@@ -25,19 +26,21 @@ class LOE2D(OnlineModel):
     def inversegap(self, scorelist, gamma, K):
         optimal_index = np.argmax(scorelist)
         Lagrangian_gap = scorelist[optimal_index] - scorelist
+        # print(f"Lagrangian_gap: {Lagrangian_gap}")
         eps = 1e-4
         left, right = 1, K
         while(True):
             mid = (left + right)/2
-            s = np.sum(1 / (mid + gamma * Lagrangian_gap))
+            s = np.sum(1 / (mid + 2 * gamma * Lagrangian_gap))
             if np.abs(s-1) < eps:
                 break
             if s > 1:
                 left = mid
             else:
                 right = mid
-        pi = 1 / (left + gamma * Lagrangian_gap)
+        pi = 1 / (mid + 2 * gamma * Lagrangian_gap)
         pi = pi.astype(np.float64) / np.sum(pi)
+        # print(f"pi: {pi}")
         return np.random.choice(len(pi),p=pi)
 
     def take_action(self, sample):
