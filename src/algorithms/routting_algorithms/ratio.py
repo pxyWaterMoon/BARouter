@@ -27,8 +27,8 @@ class Ratio(OnlineModel):
         predict_cost = self.cmodel.predict(sample_list)
 
         predict_reward = np.clip(predict_reward, 0, 1)
-        predict_cost = np.clip(predict_reward, 1e-6, None)
-
+        predict_cost = np.clip(predict_cost, 1e-6, None)
+        # exit(0)
         weight = predict_reward / predict_cost # (K)
         action_index = np.argmax(weight)
 
