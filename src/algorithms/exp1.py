@@ -277,28 +277,44 @@ if __name__ == "__main__":
     # path = "src/configs/exp1/rb/B=2000/AUPD_knn.yaml"
     # main(read_config(path))
 
-    group = {
-        "rb":[2000,5000,20000],
-        "sp":[500,900,2000]
-    }
+    # group = {
+    #     "rb":[2000,5000,20000],
+    #     "sp":[500,900,1600]
+    # }
     respeat = 5
     res = {}
-    for ds_name,b_list in group.items():
-        for budget in b_list:
-            folder = f"src/configs/exp1/{ds_name}/B={budget}"
-            cfg_list = os.listdir(folder)
-            for cfg_path in cfg_list:
-                cfg = read_config(f"{folder}/{cfg_path}")
-                cfg["budget"] = budget
-                res_list = []
-                for _ in range(respeat):
-                    res_list.append(main(cfg))
-                print(np.average(np.array(res_list)))
-                name = f"{ds_name}_{cfg['agent']['type']}"
-                if name not in res:
-                    res[name]=[]
-                res[name].append(res_list)
+    # for ds_name,b_list in group.items():
+    #     for budget in b_list:
+    #         folder = f"src/configs/exp1/{ds_name}/B={budget}"
+    #         cfg_list = os.listdir(folder)
+    #         for cfg_path in cfg_list:
+    #             cfg = read_config(f"{folder}/{cfg_path}")
+    #             if cfg["agent"]["type"] != "gradient":
+    #                 continue
+    #             cfg["budget"] = budget
+    #             res_list = []
+    #             for _ in range(respeat):
+    #                 res_list.append(main(cfg))
+    #             print(np.average(np.array(res_list)))
+    #             name = f"{ds_name}_{cfg['agent']['type']}"
+    #             if name not in res:
+    #                 res[name]=[]
+    #             res[name].append(res_list)
+    # for ds_name,b_list in group.items():
+    #     for budget in b_list:
+    folder = f"src/configs/PD"
+    cfg_list = os.listdir(folder)
+    for cfg_path in cfg_list:
+        cfg = read_config(f"{folder}/{cfg_path}")
+        res_list = []
+        for _ in range(respeat):
+            res_list.append(main(cfg))
+        print(np.average(np.array(res_list)))
+        name = cfg_path
+        if name not in res:
+            res[name]=[]
+        res[name].append(res_list)
     
     import json
-    with open(f"./outputs/exp1/exp_knn.json", "w") as f:
+    with open(f"./outputs/exp1/PD.json", "w") as f:
         json.dump(res, f)

@@ -11,6 +11,10 @@ def split(data:list, rate) ->tuple[list,list]:
 
 class K_means(BasePredictor):
     def __init__(self, dataset, key, k=5):
+
+        N = 200
+        # dataset = dataset[:N]
+
         self.gt = {data["prompt"]: data["ground_truth"] for data in dataset}
         self.key = key
         self.K = k
@@ -24,6 +28,8 @@ class K_means(BasePredictor):
                 data["ground_truth"][action][key] for action in action_list
             ]for data in dataset
         ])
+        X = X[:N]
+        y = y[:N]
         # y.shape : (n_data,n_action)
         # self.scaler = StandardScaler()
         # scaled_X = self.scaler.fit_transform(X).astype(np.float64)
@@ -36,19 +42,28 @@ class K_means(BasePredictor):
         cluster_labels = self.kmeans.labels_
 
         self.mean_val = np.zeros((k, y.shape[1]))
+        self.counts = np.zeros((k, y.shape[1]))
         for cluster_id in range(k):
             # 获取当前聚类的所有样本索引
             cluster_indices = np.where(cluster_labels == cluster_id)
+            self.counts[cluster_id,:] = len(cluster_indices[0])
             # 计算该聚类对应的y平均值
             self.mean_val[cluster_id] = np.mean(y[cluster_indices], axis=0)
         
-        # print(self.mean_val)
+        # print(self.counts)
+        # exit(0)
     
     def offline_training(self, dataset, key:str):
         return
 
     def online_update(self, sample, global_step):
-        return
+        prompt_embedding = sample["prompt_embedding"]
+        value = sample[self.key]
+        action_idx = sample["model_index"]
+        label = self.kmeans.predict([prompt_embedding])[0]
+        self.mean_val[label,action_idx] = self.mean_val[label][action_idx] * self.counts[label][action_idx] + value
+        self.counts[label,action_idx] += 1
+        self.mean_val[label,action_idx] /= self.counts[label][action_idx]
     
     def get_embedding(self, sample_list:list[dict], key = None):
         

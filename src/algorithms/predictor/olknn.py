@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 # from sklearn.neighbors import KNeighborsRegressor
-from cuml.neighbors import KNeighborsRegressor
+from sklearn.neighbors import KNeighborsRegressor
 from sklearn.preprocessing import StandardScaler
 from src.algorithms.predictor.base_model import BasePredictor
 from src.algorithms.utils import embedding_batch
@@ -26,7 +26,7 @@ class KNNPredictor:
         X = np.array(self.X).astype(np.float64)
         y = np.array(self.y).astype(np.float64)
         self.knn = KNeighborsRegressor(n_neighbors=self.k,
-                                    weights='uniform',
+                                    weights='distance',
                                     algorithm='auto',
                                     p=2,
                                 )
@@ -49,7 +49,7 @@ class OLKNN(BasePredictor):
         random_prompt = list(self.gt.keys())[0]
         self.action_list = list(self.gt[random_prompt].keys())
 
-        NN = self.K
+        NN = 2*self.K
 
         if offline:
             self.knn_dict = {action: KNNPredictor(X, np.array([data["ground_truth"][action][key] for data in dataset]), k) for action in self.action_list}

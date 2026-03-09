@@ -1,0 +1,8 @@
+rmodel:
+  type: "xgbregressor"
+  offline : False
+  sft_file_path: "data/processed/bert-base-uncased/routerbench_0shot/offline_cost_scale_1000.parquet"
+cmodel:
+  type: "xgbregressor"
+  offline : False
+  sft_file_path: "data/processed/bert-base-uncased/routerbench_0shot/offline_cost_scale_1000.parquet"

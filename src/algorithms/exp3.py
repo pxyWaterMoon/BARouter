@@ -278,8 +278,8 @@ if __name__ == "__main__":
     # main(read_config(path))
 
     group = {
-        # "rb_on_k=20":[200,2000],
-        "rb_off":[200,2000]
+        "rb_on_k=50":[200,2000],
+        # "rb_off":[200,2000]
     }
     respeat = 5
     res = {}
@@ -301,5 +301,5 @@ if __name__ == "__main__":
                 res[name].append(res_list)
     
     import json
-    with open(f"./outputs/exp3/exp_off.json", "w") as f:
+    with open(f"./outputs/exp3/exp_on50.json", "w") as f:
         json.dump(res, f)

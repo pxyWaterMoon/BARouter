@@ -1,0 +1,19 @@
+project_name: "carrot_LargeBudget"
+environment:
+  type: "table"
+  file_path: "data/processed/bert-base-uncased/sprout_test/online_cost_scale_1000.parquet"
+agent:
+  type: "carrot2"
+  mu: 0.7
+  rmodel:
+    type: "knn"
+    file_path: "data/processed/bert-base-uncased/sprout/offline_cost_scale_1000.parquet"
+    k : 100
+  cmodel:
+    type: "knn"
+    file_path: "data/processed/bert-base-uncased/sprout/offline_cost_scale_1000.parquet"
+    k : 100
+  embedding_fn: "sample2given_embedding"
+log_dir: "outputs/log0919"
+T: 5309
+budget: 1500

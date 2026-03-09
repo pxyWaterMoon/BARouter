@@ -1,0 +1,4 @@
+agent:
+  type: "carrot2"
+  mu: 0.6
+  embedding_fn: "sample2prompt"

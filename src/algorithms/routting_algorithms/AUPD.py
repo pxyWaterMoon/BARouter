@@ -40,24 +40,6 @@ class AUPD(OnlineModel):
             sample_list.append(sample)
         predict_reward = self.rmodel.predict(sample_list)
         predict_cost = self.cmodel.predict(sample_list)
-
-
-        # cmodel_input = self.embedding_fn(sample, concatenate=self.cmodel.concatenate)
-        # # print(X.shape)
-        # # X: (K, d)
-        # if self.rmodel.concatenate:
-        #     rmodel_input = self.embedding_fn(sample, concatenate=self.rmodel.concatenate)
-        #     predict_reward:np.ndarray = self.rmodel.predict(rmodel_input) # (K)
-        # else:
-        #     rmodel_input_x, rmodel_input_a = self.embedding_fn(sample, concatenate=self.rmodel.concatenate)
-        #     predict_reward:np.ndarray = self.rmodel.predict(rmodel_input_x, rmodel_input_a) # (K)
-        # if self.cmodel.concatenate:
-        #     cmodel_input = self.embedding_fn(sample, concatenate=self.cmodel.concatenate)
-        #     predict_cost:np.ndarray = self.cmodel.predict(cmodel_input) # (K)
-        # else:
-        #     cmodel_input_x, cmodel_input_a = self.embedding_fn(sample, concatenate=self.cmodel.concatenate)
-        #     predict_cost:np.ndarray = self.cmodel.predict(cmodel_input_x, cmodel_input_a) # (K)
-        # print(predict_cost.shape)
         weight = predict_reward - (self.Q/self.V)*predict_cost # (K)
         self.current_sample["weight"] = weight
         self.current_sample["all_predict_reward"] = predict_reward
@@ -104,7 +86,7 @@ class AUPD(OnlineModel):
         self.current_sample = None
         self.Q = max(self.Q + cost - self.b,0)
         self.budget -= cost
-        self.b = self.budget / max(self.T - self.t - 1, 1)
+        # self.b = self.budget / max(self.T - self.t - 1, 1)
         self.logger.log_scalar(
                 {
                     "train/Q": self.Q

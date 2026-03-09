@@ -1,7 +1,7 @@
-project_name: "AUPD_exp_routerbench"
+project_name: "AUPD_exp"
 environment:
   type: "table"
-  file_path: "data/processed/bert-base-uncased/routerbench_0shot/online_cost_scale_1000_cleaned.parquet"
+  file_path: "data/processed/bert-base-uncased/sprout_test/online_cost_scale_1000.parquet"
 agent:
   type: "AUPD_exp"
   v_scale : 1
@@ -9,15 +9,15 @@ agent:
   allow_null : False
   rmodel:
     type: "olknn"
-    file_path: "data/processed/bert-base-uncased/routerbench_0shot/offline_cost_scale_1000.parquet"
+    file_path: "data/processed/bert-base-uncased/sprout_test/offline_cost_scale_1000.parquet"
     k : 100
     offline : False
   cmodel:
     type: "olknn"
-    file_path: "data/processed/bert-base-uncased/routerbench_0shot/offline_cost_scale_1000.parquet"
+    file_path: "data/processed/bert-base-uncased/sprout_test/offline_cost_scale_1000.parquet"
     k : 100
     offline : False
   embedding_fn: "sample2prompt"
-log_dir: "outputs/log0919"
-T: 2000
-budget: 500
+log_dir: "outputs/log0926"
+T: 5309
+budget: 900

@@ -18,6 +18,6 @@ agent:
     k : 100
     offline : False
   embedding_fn: "sample2prompt"
-log_dir: "outputs/log0919"
+log_dir: "outputs/log0926"
 T: 5309
 budget: 900

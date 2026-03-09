@@ -9,33 +9,26 @@ def split(data:list, rate) ->tuple[list,list]:
     return data[:n],data[n:]
 
 class XGBRegressorPredictor(BasePredictor):
-    def __init__(self, key, SFT_dataset=None, buffer_size=512, offline = False):
+    def __init__(self, key, SFT_dataset=None, buffer_size=256, offline = False):
         self.model = XGBRegressor(max_depth=4,learning_rate=0.01)
         self.key = key
         self.offline = offline
         self.buffer = []
         self.buffer_size = buffer_size
+        self.X = []
+        self.y = []
         if SFT_dataset is not None:
-            self.offline_training(SFT_dataset, key=key)
-    
-    # def get_data(self, file_name:str, key:str):
-    #     df = pd.read_parquet(file_name)
-    #     prompt_embedding_list = df["prompt_embedding"].to_list()
-    #     model_embedding_dict:list[dict] = df["available_models_description_embeddings"].to_list()
-    #     gt:list[dict] = df["gt"].to_list()
-    #     action_dict = df["available_models_description"][0]
-    #     action_embedding_dict = df["available_models_description_embeddings"][0]
-    #     self.action_list = list(action_dict.keys())
-    #     self.action_embedding_list = [action_embedding_dict[action] for action in self.action_list]
-    #     X = []
-    #     y = []
-    #     for i in range(len(prompt_embedding_list)):
-    #         prompt_embedding = prompt_embedding_list[i]
-    #         for model_name,model_embedding in model_embedding_dict[i].items():
-    #             x = np.hstack([prompt_embedding,model_embedding])
-    #             X.append(x)
-    #             y.append(gt[i][model_name][key])
-    #     return (X,y)
+            for data in SFT_dataset:
+                self.X.append(np.concatenate([data["prompt_embedding"],data["model_description_embedding"]]))
+                self.y.append(data[key])
+            if not self.offline:
+                self.X = self.X[:200]
+                self.y = self.y[:200]
+                print("online!")
+            self.X = np.array(self.X)
+            self.y = np.array(self.y)
+        self.model.fit(self.X,self.y)
+        print(f"Successfully trained the predictor of {key}.")
     
     def sample2input(self, sample_list:list[dict], key = None):
         if all("prompt_embedding" not in sample for sample in sample_list) or all("model_description_embedding" not in sample for sample in sample_list):
@@ -48,34 +41,21 @@ class XGBRegressorPredictor(BasePredictor):
             return X, np.array(y)
         return X
 
-    def offline_training(self, dataset, key:str):
-        X = []
-        y = []
-        for data in dataset:
-            X.append(np.concatenate([data["prompt_embedding"],data["model_description_embedding"]]))
-            y.append(data[key])
-        # X, y = embedding_batch(dataset, key=key)
-        X = np.array(X)
-        y = np.array(y)
-        if not self.offline:
-            X = X[:10]
-            y = y[:10]
-            print("online!")
-        self.model.fit(X,y)
-        print(f"Successfully trained the predictor of {key}.")
+    def offline_training(self):
+        return
 
     def online_update(self, sample, global_step):
+        if self.offline:
+            return
+        return
         self.buffer.append(sample)
         if len(self.buffer) >= self.buffer_size:
             self.buffer.append(sample)
-            X, y = self.sample2input(self.buffer, key=self.key)
-            # print(X.shape, y.shape)
-            updated_model = XGBRegressor(max_depth=4)
-            # print("xgb start retraining...")
-            updated_model.fit(X, y, xgb_model=self.model)
-            self.model = updated_model
+            new_X, new_y = self.sample2input(self.buffer, key=self.key)
+            self.X = np.concatenate([self.X,new_X],axis=0)
+            self.y = np.concatenate([self.y,new_y],axis=0)
             self.buffer = []
-        # return updated_model
+            self.model.fit(self.X,self.y)
     
     def predict(self, sample_list):
         X = self.sample2input(sample_list)

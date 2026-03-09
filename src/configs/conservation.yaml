@@ -1,0 +1,18 @@
+project_name: "conservation"
+environment:
+  type: "table"
+  file_path: "data/processed/bert-base-uncased/sprout_test/online_cost_scale_1000.parquet"
+agent:
+  type: "cons"
+  rmodel:
+    type: "xgbregressor"
+    offline : True
+    sft_file_path: "data/processed/bert-base-uncased/sprout_test/offline_cost_scale_1000.parquet"
+  cmodel:
+    type: "xgbregressor"
+    offline : True
+    sft_file_path: "data/processed/bert-base-uncased/sprout_test/offline_cost_scale_1000.parquet"
+  embedding_fn: "sample2given_embedding"
+log_dir: "outputs/log0926"
+T: 5309
+budget: 1600

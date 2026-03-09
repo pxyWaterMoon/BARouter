@@ -1,0 +1,21 @@
+project_name: "AUPD_exp_sp"
+environment:
+  type: "table"
+  file_path: "/home/zulk2024/ICLR2026/data/processed/bert-base-uncased/routerbench_0shot/online_cost_scale_1000_cleaned.parquet"
+agent:
+  type: "AUPD_exp"
+  v_scale : 1
+  eta: 20
+  allow_null : False
+  rmodel:
+    type: "kmeans"
+    file_path: "data/processed/bert-base-uncased/routerbench_0shot/offline_cost_scale_1000.parquet"
+    k : 20
+  cmodel:
+    type: "kmeans"
+    file_path: "data/processed/bert-base-uncased/routerbench_0shot/offline_cost_scale_1000.parquet"
+    k : 20
+  embedding_fn: "sample2prompt"
+log_dir: "outputs/log1001"
+T: 2000
+budget: 1000

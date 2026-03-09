@@ -1,0 +1,5 @@
+environment:
+  type: "table"
+  file_path: "data/processed/bert-base-uncased/routerbench_0shot/online_cost_scale_1000_cleaned.parquet"
+log_dir: "outputs/log1001_routerbench"
+T: 20000

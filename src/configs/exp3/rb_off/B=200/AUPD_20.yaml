@@ -10,12 +10,12 @@ agent:
   rmodel:
     type: "knn"
     file_path: "data/processed/bert-base-uncased/routerbench_0shot/offline_cost_scale_1000.parquet"
-    k : 20
+    k : 50
     offline : False
   cmodel:
     type: "knn"
     file_path: "data/processed/bert-base-uncased/routerbench_0shot/offline_cost_scale_1000.parquet"
-    k : 20
+    k : 50
     offline : False
   embedding_fn: "sample2prompt"
 log_dir: "outputs/log0919"

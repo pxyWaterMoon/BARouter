@@ -1,0 +1,12 @@
+project_name: "gradient"
+environment:
+  type: "table"
+  file_path: "data/processed/bert-base-uncased/sprout_test/online_cost_scale_1000.parquet"
+agent:
+  type: "gradient"
+  offline_data: "data/processed/bert-base-uncased/sprout_test/offline_cost_scale_1000.parquet"
+log_dir: "outputs/log0916"
+T: 5309
+budget: 1700
+
+# python -m src.algorithms.main --config_path ./tmp_configs/sprout.yaml --project_name sp_test

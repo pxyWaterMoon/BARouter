@@ -1,0 +1,8 @@
+rmodel:
+  type: "kmeans"
+  file_path: "data/processed/bert-base-uncased/routerbench_0shot/offline_cost_scale_1000.parquet"
+  k : 20
+cmodel:
+  type: "kmeans"
+  file_path: "data/processed/bert-base-uncased/routerbench_0shot/offline_cost_scale_1000.parquet"
+  k : 20

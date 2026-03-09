@@ -1,0 +1,3 @@
+agent:
+  type: "ratio"
+  embedding_fn: "sample2prompt"

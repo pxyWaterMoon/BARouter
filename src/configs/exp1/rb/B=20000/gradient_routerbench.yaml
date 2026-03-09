@@ -5,7 +5,7 @@ environment:
 agent:
   type: "gradient"
   offline_data: "data/processed/bert-base-uncased/routerbench_0shot/offline_cost_scale_1000.parquet"
-log_dir: "outputs/log0916"
+log_dir: "outputs/log0926"
 T: 20000
 budget: 20000
 

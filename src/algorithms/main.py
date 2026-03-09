@@ -82,6 +82,14 @@ def build_predictor_models(model_config, key, action_space, logger):
         from src.algorithms.predictor.kmeans import K_means
         simuler_dataset = SimulerDataset(file_path=model_config["file_path"])
         model = K_means(simuler_dataset,key=key,k=model_config.get("k",5))
+    elif model_config["type"] == "kmeans_ucb":
+        from src.algorithms.predictor.kmeans_ucb import K_means
+        simuler_dataset = SimulerDataset(file_path=model_config["file_path"])
+        model = K_means(simuler_dataset,key=key,k=model_config.get("k",5),c=0)
+    elif model_config["type"] == "kmeans_beta":
+        from src.algorithms.predictor.kmeans_beta import K_means
+        simuler_dataset = SimulerDataset(file_path=model_config["file_path"])
+        model = K_means(simuler_dataset,key=key,k=model_config.get("k",5))
     elif model_config["type"] == "kmeans_upd":
         from src.algorithms.predictor.online_kmeans import K_means_online
         model = K_means_online(key=key,n_action=len(action_space),n_cluters=model_config.get("k",20))

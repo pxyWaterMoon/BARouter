@@ -1,0 +1,5 @@
+environment:
+  type: "table"
+  file_path: "data/processed/bert-base-uncased/sprout_test/online_cost_scale_1000.parquet"
+log_dir: "outputs/log0926"
+T: 5309

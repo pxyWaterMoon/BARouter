@@ -27,12 +27,19 @@ class Cons(OnlineModel):
         predict_reward = self.rmodel.predict(sample_list)
         predict_cost = self.cmodel.predict(sample_list)
         
-        predict_reward = np.clip(predict_reward, 0, 1)
+        # predict_reward = np.clip(predict_reward, 0, 1)
 
         current_b = self.budget / (self.T - self.t+1)
         unfeasible_indices = np.where(predict_cost > current_b)[0]
         predict_reward[unfeasible_indices] = 0
         action_index = np.argmax(predict_reward)
+        if np.max(predict_reward) <= 0:
+            action_index = np.argmin(predict_cost)
+        # print(predict_reward)
+        # print(predict_cost)
+        # print(current_b)
+        # print(action_index)
+        # exit(0)
 
         action = action_space[action_index]
         self.current_sample["model_index"] = action_index

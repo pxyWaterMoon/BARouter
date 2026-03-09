@@ -36,6 +36,11 @@ class Gradient(BasePredictor):
         labels = self.kmeans(k, X)
         print(labels.shape)
 
+        # sum = 0
+        # for i, action in enumerate(opt_action):
+        #     sum += r_array[i][action]
+        # print(sum/len(opt_action))
+        # exit(0)
 
         self.policy = np.zeros((k,len(self.action_list)))
         # 遍历每个数据点的下标和标签
@@ -52,7 +57,7 @@ class Gradient(BasePredictor):
         # 3. 归一化：每行除以该行的和
         self.policy /= row_sums
         
-        print(self.policy)
+        print(np.max(self.policy))
         
     
     def kmeans(self, n_clusters, X):

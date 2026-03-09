@@ -1,0 +1,6 @@
+agent:
+  type: "AUPD_exp"
+  v_scale : 1
+  eta: 20
+  allow_null : False
+  embedding_fn: "sample2prompt"
